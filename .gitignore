@@ -1,0 +1,26 @@
+# Repository scope: model development and the Flutter application only.
+/*
+!/.gitignore
+!/README.md
+!/weatherdata.ipynb
+!/scripts/
+!/models/
+!/floodsafe/
+
+# Local environments, caches, and credentials.
+.DS_Store
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+.env.*
+*.pem
+*.key
+*.jks
+*.keystore
+key.properties
+local.properties
+credentials.json
+service-account*.json

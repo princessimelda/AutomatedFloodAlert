@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FloodSafe - Chrome demo",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "toolArgs": [
+        "--web-port=8765"
+      ]
+    },
+    {
+      "name": "FloodSafe - Selected device",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}

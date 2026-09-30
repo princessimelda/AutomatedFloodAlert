@@ -1,0 +1,19 @@
+{
+  "name": "FloodSafe",
+  "short_name": "FloodSafe",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#125DD8",
+  "theme_color": "#125DD8",
+  "description": "Nairobi flood-awareness UI prototype.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "brand.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
