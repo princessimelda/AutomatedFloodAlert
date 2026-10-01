@@ -7,7 +7,18 @@
       "type": "dart",
       "deviceId": "chrome",
       "toolArgs": [
-        "--web-port=8765"
+        "--web-port=8765",
+        "--web-hostname=127.0.0.1"
+      ]
+    },
+    {
+      "name": "FloodSafe - Browser demo (no Chrome debugger)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "web-server",
+      "toolArgs": [
+        "--web-port=8765",
+        "--web-hostname=127.0.0.1"
       ]
     },
     {

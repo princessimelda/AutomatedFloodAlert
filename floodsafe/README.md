@@ -4,13 +4,13 @@ Flutter interface prototype for flood awareness in Nairobi. The English-language
 
 ## Local demonstration
 
-[Open the FloodSafe demonstration](http://localhost:8765)
+[Open the FloodSafe demonstration](http://127.0.0.1:8765)
 
 From the `floodsafe` directory, start the application:
 
 ```sh
 flutter pub get
-flutter run -d chrome --web-port=8765
+flutter run -d chrome --web-port=8765 --web-hostname=127.0.0.1
 ```
 
 Keep the terminal running during the demonstration. The link works only on the computer running the application; it is not a publicly hosted website. If port 8765 is already in use, stop the previous demo server first.
@@ -39,3 +39,15 @@ flutter analyze
 flutter test
 flutter build web --no-web-resources-cdn
 ```
+
+## Chrome connection troubleshooting
+
+If Flutter cannot connect to Chrome, stop the current run before retrying. Cloud-backed files in `.dart_tool/chrome-device` can delay restoration of Flutter's generated browser profile. Back up and rename that cache while Flutter is stopped to allow a fresh profile to be created. This does not affect the normal Chrome profile.
+
+For a presentation without Chrome debugger attachment, select **FloodSafe - Browser demo (no Chrome debugger)** in VS Code, or run:
+
+```sh
+flutter run -d web-server --web-port=8765 --web-hostname=127.0.0.1
+```
+
+Wait for the server-ready message, then open the [local demonstration](http://127.0.0.1:8765) manually. Use only one launch session on port 8765 at a time.
