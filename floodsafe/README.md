@@ -2,11 +2,13 @@
 
 Flutter interface prototype for flood awareness in Nairobi. The English-language demonstration includes phone verification, an illustrative risk map, route previews, a news feed, and a scripted assistant.
 
-## Live demonstration
+## Android APK
 
-[Open the FloodSafe demonstration](https://floodsafe-nairobi.fit-chub-0898.chatgpt.site)
+[Download FloodSafe for Android](https://github.com/princessimelda/AutomatedFloodAlert/raw/refs/heads/main/floodsafe/downloads/FloodSafe-0.1.0.apk)
 
-The public demo is hosted with Sites and works without running a local server. It uses illustrative data and scripted interactions.
+Requires Android 7.0 or newer. Download the APK on your Android phone, open it, and allow installation from your browser or file manager if Android asks. The installed demo works without a local server and uses illustrative data and scripted interactions.
+
+Version 0.1.0 is a release-mode demonstration APK signed with a development key. The Android build and APK signature verification passed, along with all five Flutter tests. It is intended for direct installation and testing, not Play Store distribution. It has not been tested on a physical Android device. The download checksum is in [downloads/SHA256SUMS](downloads/SHA256SUMS).
 
 ## Local demonstration
 
@@ -36,7 +38,7 @@ Built with Flutter and Dart, Material widgets, custom map illustrations, and bun
 
 All weather, risk, route, and news content is illustrative. SMS, authentication, GPS, database integration, model inference, live AI, and notifications are not implemented. Routes are not intended for navigation.
 
-Static analysis, five interaction and layout tests, and the web build passed during prototype development. Android device builds have not yet been verified. Screen captures are available in [docs/previews](docs/previews/).
+Static analysis, five interaction and layout tests, and the web build passed during prototype development. Screen captures are available in [docs/previews](docs/previews/).
 
 ## Validation
 

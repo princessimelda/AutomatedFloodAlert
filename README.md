@@ -15,6 +15,6 @@ Datasets, research documents, local environments, and generated application buil
 
 The models remain experimental. The application uses demonstration content and is not connected to live predictions or a database.
 
-[Open the live FloodSafe demonstration](https://floodsafe-nairobi.fit-chub-0898.chatgpt.site).
+[Download the FloodSafe Android APK](https://github.com/princessimelda/AutomatedFloodAlert/raw/refs/heads/main/floodsafe/downloads/FloodSafe-0.1.0.apk).
 
 See the [Flutter application README](floodsafe/README.md) for setup and demonstration instructions.
