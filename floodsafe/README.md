@@ -2,6 +2,12 @@
 
 Flutter interface prototype for flood awareness in Nairobi. The English-language demonstration includes phone verification, an illustrative risk map, route previews, a news feed, and a scripted assistant.
 
+## Live demonstration
+
+[Open the FloodSafe demonstration](https://floodsafe-nairobi.fit-chub-0898.chatgpt.site)
+
+The public demo is hosted with Sites and works without running a local server. It uses illustrative data and scripted interactions.
+
 ## Local demonstration
 
 [Open the FloodSafe demonstration](http://127.0.0.1:8765)

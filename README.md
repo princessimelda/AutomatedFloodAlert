@@ -15,4 +15,6 @@ Datasets, research documents, local environments, and generated application buil
 
 The models remain experimental. The application uses demonstration content and is not connected to live predictions or a database.
 
-See the [Flutter application README](floodsafe/README.md) for setup and the local demonstration link.
+[Open the live FloodSafe demonstration](https://floodsafe-nairobi.fit-chub-0898.chatgpt.site).
+
+See the [Flutter application README](floodsafe/README.md) for setup and demonstration instructions.
