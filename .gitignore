@@ -1,4 +1,4 @@
-# Repository scope: model development and the Flutter application only.
+# Repository scope: application, backend, database and research code.
 /*
 !/.gitignore
 !/README.md
@@ -6,6 +6,9 @@
 !/scripts/
 !/models/
 !/floodsafe/
+!/backend/
+!/supabase/
+!/.github/
 
 # Local environments, caches, and credentials.
 .DS_Store
@@ -23,4 +26,8 @@ venv/
 key.properties
 local.properties
 credentials.json
+config.local.json
 service-account*.json
+.pytest_cache/
+.ruff_cache/
+*.egg-info/

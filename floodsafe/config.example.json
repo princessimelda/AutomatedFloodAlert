@@ -1,0 +1,5 @@
+{
+  "FLOODSAFE_API_URL": "http://127.0.0.1:8001",
+  "FLOODSAFE_SUPABASE_URL": "https://YOUR_PROJECT.supabase.co",
+  "FLOODSAFE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_REPLACE_ME"
+}
