@@ -10,6 +10,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
+  flutter_map: ^8.3.2
+  geolocator: ^14.1.2
+  http: ^1.6.0
+  latlong2: ^0.10.1
+  supabase_flutter: ^2.18.3
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,18 @@
 # FloodSafe
 
-Flutter interface prototype for flood awareness in Nairobi. The English-language demonstration includes phone verification, an illustrative risk map, route previews, a news feed, and a scripted assistant.
+Flutter application in development for flood awareness in Nairobi. The current local version opens directly to a location → situation → preparedness flow, without requiring sign-in. It supports either explicit standalone fixtures or a Python API backed by PostgreSQL/PostGIS. Current development examples are not live predictions.
+
+## Connected development
+
+Start the API using the [backend instructions](../backend/README.md), then run:
+
+```sh
+flutter run -d web-server --web-hostname=127.0.0.1 --web-port=8765 --dart-define=FLOODSAFE_API_URL=http://127.0.0.1:8000
+```
+
+The place picker, dashboard assessment and published advisories use backend responses. API errors do not fall back to sample risk. The only configuration passed to Flutter is the API URL; database passwords stay server-side. Without the define, the app retains standalone demo mode. A current local test preview may use API port 8001; use that port in the define when testing that server.
+
+The downloadable 0.1.0 APK below is the earlier prototype. It does not contain the local core-flow changes described here.
 
 ## Android APK
 
@@ -27,18 +39,23 @@ In VS Code, open this folder, select **FloodSafe - Chrome demo**, and press **F5
 
 ## Demonstration flow
 
-1. Enter sample number `712345678` and verification code `123456`, or select **Explore the demo first**.
-2. Select a sample Nairobi location, explore the risk layers, and preview a route.
-3. Open **Flood News** to filter and read sample stories.
-4. Open **AI Assistant** to try the scripted responses.
+1. Home opens without an assumed location. Read general preparedness steps at any time using the persistent action button.
+2. Select **Choose a place** to explore labelled scenarios: Kibera (sample high risk), Kasarani (sample low risk), Westlands (unavailable), and Embakasi (expired information). These scenarios do not describe actual conditions in those places.
+3. Alternatively, select **Use my location** for a one-time foreground fix. Standalone demo mode keeps coordinates in memory. In API mode, coordinates are sent in a dashboard POST body for a spatial lookup, not saved or put in request URLs. Demo polygons never match real GPS coordinates; without a published non-demo assessment the result is unavailable.
+4. **Open map** shows an interactive OpenStreetMap view, device-location accuracy and saved neighbourhoods. Place markers are approximate centres, not flood boundaries or safe destinations. See [maps](docs/maps.md). **Help** contains the database-backed guided assistant when the API is configured; otherwise it shows an empty catalogue. Sample Flood News is hidden. See [guided assistant](docs/guided-assistant.md).
+5. The profile button opens optional Supabase email sign-in and saved places. Configure the public project URL and publishable key first; guest access remains available without them. See [accounts and saved places](docs/accounts.md).
+
+GPS on web requires HTTPS or localhost and browser permission. Denied, disabled, inaccurate, stale, or timed-out fixes leave manual selection and preparedness guidance available. Background tracking is not implemented.
+
+See [the core-flow implementation notes](docs/core-flow.md) for state rules, issue mapping, verification, and remaining work.
 
 ## Implementation and status
 
 Built with Flutter and Dart, Material widgets, custom map illustrations, and bundled Lora and Roboto fonts. Font licenses are included in `assets/fonts/`.
 
-All weather, risk, route, and news content is illustrative. SMS, authentication, GPS, database integration, model inference, live AI, and notifications are not implemented. Routes are not intended for navigation.
+All seeded risk, map, route, and news examples are illustrative. Foreground location access and public-read backend integration are implemented. Real authentication/SMS, model inference, live AI, notifications, background location, and offline persistence are not implemented. The earlier route preview is no longer offered as a Home-screen action. No verified route or evacuation destination is provided.
 
-Static analysis, five interaction and layout tests, and the web build passed during prototype development. Screen captures are available in [docs/previews](docs/previews/).
+The core has controller, location-service, and widget tests covering data validity, request ordering, GPS fallback, enlarged text, and automated Home-screen accessibility checks. These checks do not replace physical-device, screen-reader, or user usability testing. Screen captures in [docs/previews](docs/previews/) show the earlier prototype.
 
 ## Validation
 

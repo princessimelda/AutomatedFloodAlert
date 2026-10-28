@@ -44,7 +44,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           Text('Welcome', style: titleStyle(38)),
           const SizedBox(height: 16),
           const Text(
-            'Enter your phone number to create an account or log in to FloodSafe.',
+            'Optional phone sign-in preview. Accounts and personal alerts are not connected yet. You can explore without a phone number.',
             style: TextStyle(color: muted, fontSize: 16, height: 1.65),
           ),
           const SizedBox(height: 32),

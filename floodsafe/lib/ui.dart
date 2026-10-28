@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 const blue = Color(0xFF125DD8);
 const navy = Color(0xFF123D70);
 const ink = Color(0xFF152C46);
-const muted = Color(0xFF697C91);
+const muted = Color(0xFF506278);
 const paper = Color(0xFFF5F8FD);
 const line = Color(0xFFE0E8F2);
-const red = Color(0xFFD83C4C);
+const red = Color(0xFFB42336);
 const green = Color(0xFF178567);
 
 TextStyle titleStyle(double size) => TextStyle(
