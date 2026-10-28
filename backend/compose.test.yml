@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_PASSWORD: floodsafe-test-only
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - ../supabase/tests/bootstrap.sql:/docker-entrypoint-initdb.d/20_floodsafe_test.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d floodsafe_test"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
