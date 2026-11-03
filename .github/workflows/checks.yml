@@ -58,3 +58,19 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build web --no-web-resources-cdn --dart-define=FLOODSAFE_API_URL=http://127.0.0.1:8000
+  station-research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            scripts/nairobi_pipeline/requirements.txt
+            scripts/openmeteo_pipeline/requirements.txt
+      - run: python -m pip install -r scripts/openmeteo_pipeline/requirements.txt
+      - run: ruff check scripts/nairobi_pipeline scripts/openmeteo_pipeline tests/test_nairobi_pipeline.py tests/test_openmeteo_pipeline.py
+      - run: ruff format --check scripts/nairobi_pipeline scripts/openmeteo_pipeline tests/test_nairobi_pipeline.py tests/test_openmeteo_pipeline.py
+      - name: Verify research pipeline with synthetic fixtures only
+        run: python -m unittest discover -s tests -p 'test_*pipeline.py' -v
