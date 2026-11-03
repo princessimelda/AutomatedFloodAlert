@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "legacy_modules": [
+    {
+      "module_sha256": "346bc2b687180d889e588eec3c4296a1432bde61be77f9538ff0394b16f5e921",
+      "preprocessing_ast_sha256": "10e9b6dc03ee5814dd6bfed6f2cba027131e3008a3421656ff628ccadf7075b6",
+      "reason": "Only station CSV selection/configuration changed when removing the exploratory notebook; preprocessing and feature definitions are unchanged."
+    }
+  ]
+}

@@ -3,18 +3,23 @@
 !/.gitignore
 !/README.md
 !/weatherdata.ipynb
+!/nairobi_station_pipeline.ipynb
+!/openmeteo_pipeline.ipynb
 !/scripts/
+!/tests/
 !/models/
 !/floodsafe/
 !/backend/
 !/supabase/
 !/.github/
+!/documentation/
 
 # Local environments, caches, and credentials.
 .DS_Store
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
+testmodel.ipynb
 .venv/
 venv/
 .env

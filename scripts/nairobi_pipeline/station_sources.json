@@ -1,0 +1,9 @@
+{
+  "description": "The four Nairobi CSV sources selected for the station experiment.",
+  "files": [
+    "63740_Nairobi_ACC-FIC-RCC-MET-COM-_cleaned.csv",
+    "63741_Nairobi_-_Dagoretti_cleaned.csv",
+    "63742_Nairobi_-_Wilson_cleaned.csv",
+    "HKRE0_Nairobi_-_Doonholm_cleaned.csv"
+  ]
+}
