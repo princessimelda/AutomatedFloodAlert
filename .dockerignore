@@ -1,0 +1,10 @@
+**
+!scripts/
+!scripts/**
+!models/
+!models/openmeteo_rainfall_v1/
+!models/openmeteo_rainfall_v1/**
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.env.*

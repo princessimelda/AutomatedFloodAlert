@@ -35,4 +35,8 @@ The weather files have no observed flood labels. The default target is an explic
 
 The [Open-Meteo notebook](openmeteo_pipeline.ipynb) runs a separate API-based extract, clean, transform, analyse, model and load workflow using a fixed GFS model. It preserves raw API receipts, deduplicates shared grid cells and compares the same three model families with temporal splits and frozen final testing. See the [setup and methodology](scripts/openmeteo_pipeline/README.md). Generated data stays local; the default target remains experimental high rainfall rather than observed flooding.
 
-Fresh recent weather can be retrieved with `python -m scripts.openmeteo_pipeline refresh-inputs`. This prepares today's inputs from seven completed UTC days, checks compatibility with the training snapshot and tracks missing/stale/failed refreshes. See [fresh inputs and hourly local scheduling](scripts/openmeteo_pipeline/LIVE_INPUTS.md). Model inference and serving predictions to Flutter remain separate integration work.
+Fresh recent weather can be retrieved with `python -m scripts.openmeteo_pipeline refresh-inputs`. This prepares today's inputs from seven completed UTC days, checks compatibility with the training snapshot and tracks missing/stale/failed refreshes. See [fresh inputs and hourly local scheduling](scripts/openmeteo_pipeline/LIVE_INPUTS.md). For inference and durable persistence, use the cloud worker below; serving predictions to Flutter remains separate integration work.
+
+## Cloud worker
+
+The [weather/model worker](scripts/weather_worker/README.md) packages the frozen selected model, retrieves recent GFS inputs and saves experimental rainfall predictions plus source evidence to a private Supabase schema. It includes a GitHub-hosted hourly workflow and a Linux container. Hosted activation requires the repository's worker secret and the reviewed workflow on `main`; Flutter integration is still separate.

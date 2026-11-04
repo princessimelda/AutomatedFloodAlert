@@ -1,0 +1,22 @@
+{
+  "kind": "minimal_exported_reference_NOT_a_new_training_run",
+  "source_run_sha256": "0e8d9967000a3c9bb7ff3ffb5895f3a909e6e437adc8d8c534172e3d143d4e1a",
+  "signature": {
+    "code": {
+      "scripts/openmeteo_pipeline/__init__.py": "7b58c5de3b61a865d81340f2c823a406318a07e51bb3bf0a91d6bc42b32d35d3",
+      "scripts/openmeteo_pipeline/__main__.py": "fb80ed44be4876466911cf21f271d5fe1167cf3a134b2977e99f688f974c4157",
+      "scripts/openmeteo_pipeline/runner.py": "f2d01ac1c316b613308f66ca82d4c62e21c240dc7b88f13158a1d613512d63da",
+      "scripts/openmeteo_pipeline/source.py": "2e8b007420ee59697909a0b4bb813291c70cd2d293bd042122324e96a99ac3b9",
+      "scripts/nairobi_pipeline/__init__.py": "a164d21831b10ec2d73461a6746e51d92942a4c04f7cf241305860455bcca38a",
+      "scripts/nairobi_pipeline/__main__.py": "2a621fdaabf3dab5ff9118b32d268fb84d1f0f6cd41179628dace26aca2ea70d",
+      "scripts/nairobi_pipeline/data.py": "346bc2b687180d889e588eec3c4296a1432bde61be77f9538ff0394b16f5e921",
+      "scripts/nairobi_pipeline/macos_runtime.py": "224b7c61042729e4e8241e67672f7b069e6d8e14606c90706aa34488041d6bd7",
+      "scripts/nairobi_pipeline/models.py": "0cb5f3a9b8d19af4f9e66675d737fb12b30bb55c38dc2f6e1b710252020f5c5e",
+      "scripts/nairobi_pipeline/runner.py": "cd5b9e3bf78508e8a3b51134a2aaa51ecd122db82eb121f3ed10f49ccd5b042d"
+    }
+  },
+  "artefact_sha256": {
+    "stations.csv": "9a99ba59380e7fc488ca19253a9554f2056e7760046fc5af6b985159b9b3360a",
+    "source_manifest.json": "0ba9002b1e1226a7d6d4a2a049173d3fbb87e7c9814f2c0d6b2a409ad6a834e5"
+  }
+}

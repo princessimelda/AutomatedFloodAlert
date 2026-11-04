@@ -1,6 +1,6 @@
 # Database design and migration plan
 
-Supports M2 issues #6 (spatial schema), #7 (migrations/seeds), public-read portions of #8 (APIs), and Flutter #13. Backend setup is in [backend/README.md](../backend/README.md). Full authentication, telemetry ingestion, operational model execution and queued alerts are later work.
+Supports M2 issues #6 (spatial schema), #7 (migrations/seeds), public-read portions of #8 (APIs), and Flutter #13. Backend setup is in [backend/README.md](../backend/README.md). The separate [experimental weather worker](../scripts/weather_worker/README.md) adds private ingestion/inference persistence for #9. Operational flood validation and queued alerts remain later work.
 
 ## Current ERD
 
@@ -135,4 +135,14 @@ Initial proposals to review: location telemetry expires within 24 hours; saved p
 
 ## Cost boundary and remaining work
 
-Use Supabase Free and local Python hosting. There is no paid SMS, live AI, automatic weather ingestion, inference schedule or production deployment in this change. Database capacity, backups, hosting uptime and external-service quotas need review before a live pilot. Real Supabase login/JWT integration, bilingual reviewed advisories, delivery and model contracts remain open; do not close the parent GitHub issues based on public-read integration alone.
+The initial public-read increment used Supabase Free and local Python hosting. It did not include paid SMS, live AI, automated ingestion or production deployment. The worker increment below adds scheduled experimental ingestion/inference persistence; hosted activation is a separate reviewed workflow step. Database capacity, backups, hosting uptime and external-service quotas need review before a live pilot. Do not close parent GitHub issues based on public-read integration alone.
+
+## Experimental weather worker persistence
+
+Migration `202611040001_weather_worker` adds the private `floodsafe_pipeline` schema with versioned models, hourly run status, cleaned weather inputs, exact source-response evidence and experimental high-rainfall predictions. It was applied to the development Supabase database on 4 November 2026 and a real restricted-worker run saved two predictions successfully.
+
+The `floodsafe_worker` role can write only the pipeline's required records. A separately provisioned `floodsafe_ingestor` login sets that role for each transaction; its password is kept outside Git and application clients. All five tables enable RLS. Anonymous and authenticated app clients have no access. The backend's existing `floodsafe_reader` role can select only `latest_status` and `current_predictions`; raw sources and feature records remain private.
+
+The current-prediction view exposes only the latest ready run and unexpired scores for the current UTC target date. Failed, incomplete, running or stale attempts do not fall back to older scores. Results stay separate from public `risk_assessments`; no experimental score is published as verified flood risk.
+
+See the [worker setup and deployment guide](../scripts/weather_worker/README.md) for the model bundle, restricted login, Actions secret, hourly workflow, Linux container and validation. Backend endpoints and Flutter consumption of these new views remain separate integration work.

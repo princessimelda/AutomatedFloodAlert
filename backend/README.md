@@ -42,6 +42,8 @@ From `backend/`:
 
 `check` makes no schema changes. `migrate` applies versioned SQL transactionally and verifies checksums for applied versions. `seed` requires `FLOODSAFE_ALLOW_DEMO_DATA=true` and inserts development examples explicitly. Neither API startup nor refresh runs migrations, renews seeds, or invokes a model.
 
+The separate [weather/model worker](../scripts/weather_worker/README.md) now handles scheduled experimental inference and private Supabase persistence. Its migration adds bounded status/prediction views for `floodsafe_reader`; exposing them through new backend endpoints and Flutter remains the next application step. Use `python -m app.provision_worker` once after migration to create its limited login, rather than sharing the API's administrator configuration with a hosted job.
+
 Open `http://127.0.0.1:8000/docs` for generated OpenAPI documentation. `/healthz` checks the process; `/readyz` checks database access under the application's restricted reader role. A database failure produces HTTP 503, never an automatic switch to fixtures.
 
 Hosted development connection verified on 2026-10-28: encrypted connection, migration `202610280001_core`, explicit development seed, RLS on all nine application tables, anonymous-profile denial and restricted-reader access checks passed. The Dart client successfully parsed places, dashboard assessments and advisories through the Python API from Supabase. The existing local preview uses API port 8001; fresh-start commands above use 8000, so match the Flutter API URL to the port you start.
