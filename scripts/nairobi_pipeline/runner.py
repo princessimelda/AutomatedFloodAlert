@@ -10,6 +10,7 @@ import platform
 import plistlib
 import sqlite3
 import uuid
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -40,7 +41,7 @@ def load_data(tables, run):
     """Write a new research snapshot atomically; never touches the app database."""
     run = Path(run)
     temporary = run / "research.sqlite.tmp"
-    with sqlite3.connect(temporary) as connection:
+    with closing(sqlite3.connect(temporary)) as connection, connection:
         for name, table in tables.items():
             table = table.copy()
             table.columns = [
@@ -295,7 +296,7 @@ def evaluate_test(run):
         return previous
     from .models import evaluate_models
 
-    with sqlite3.connect(run / "research.sqlite") as connection:
+    with closing(sqlite3.connect(run / "research.sqlite")) as connection:
         test = pd.read_sql_query(
             "SELECT * FROM modelling_data WHERE partition='test'",
             connection,

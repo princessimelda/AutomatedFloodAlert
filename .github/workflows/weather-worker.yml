@@ -1,0 +1,38 @@
+name: Experimental rainfall worker
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/weather-worker.yml'
+      - 'scripts/weather_worker/**'
+      - 'scripts/openmeteo_pipeline/**'
+      - 'scripts/nairobi_pipeline/**'
+      - 'models/openmeteo_rainfall_v1/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: floodsafe-weather-worker
+  cancel-in-progress: false
+jobs:
+  refresh-and-predict:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FLOODSAFE_WORKER_DB_CONFIG: ${{ secrets.FLOODSAFE_WORKER_DB_CONFIG }}
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: scripts/weather_worker/requirements.txt
+      - name: Verify worker secret is configured
+        run: python -c "import os,sys; sys.exit(0 if os.environ.get('FLOODSAFE_WORKER_DB_CONFIG') else 'Configure FLOODSAFE_WORKER_DB_CONFIG in repository Actions secrets.')"
+      - run: python -m pip install -r scripts/weather_worker/requirements.txt
+      - name: Ingest, infer and persist experimental results
+        run: python -m scripts.weather_worker run

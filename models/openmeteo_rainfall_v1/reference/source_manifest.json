@@ -1,0 +1,403 @@
+{
+  "provider": "Open-Meteo / NOAA GFS",
+  "model": "gfs_global",
+  "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+  "daily_timezone": "GMT",
+  "attribution": "Weather data by Open-Meteo.com; NOAA GFS. CC BY 4.0.",
+  "source_kind": "stitched_historical_forecasts_NOT_station_observations",
+  "grid_count": 2,
+  "query_count": 3,
+  "duplicate_grid_day_rows_removed": 1736,
+  "requests": [
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.30169,
+          "longitude": 36.75919,
+          "start_date": "2021-04-01",
+          "end_date": "2021-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:01:49.759694+00:00",
+      "body_file": "e48f1fb3f95ed24d5f0e3f547669eaf44205da34beb5b781a19ebc70efadb62b.20261103T200149758263Z.9f75ad964486.json",
+      "body_sha256": "9f75ad964486ed9c3f562d489dab2e4b7f4f445164ed4e1243a05f4f2b640764",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.30169,
+          "longitude": 36.75919,
+          "start_date": "2022-01-01",
+          "end_date": "2022-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:02:14.065649+00:00",
+      "body_file": "0b24c14b9806cadb94a0134db299d3bc096cbb1eb07cc3ba30cd5966748f26a5.20261103T200214065027Z.a553c63b4176.json",
+      "body_sha256": "a553c63b41762e817c07a25efd22fc6d9b5792d86f70f7bd6a4a4f14fdc1fdb9",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.30169,
+          "longitude": 36.75919,
+          "start_date": "2023-01-01",
+          "end_date": "2023-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:02:33.773274+00:00",
+      "body_file": "38b8ebfb839c2a518119938e702f238648a692009f4dde1c6b93096ac924800a.20261103T200233772605Z.a70708d77ec5.json",
+      "body_sha256": "a70708d77ec5da9552752f87d02ce306ead07d5bae5268011518db9d73cf9386",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.30169,
+          "longitude": 36.75919,
+          "start_date": "2024-01-01",
+          "end_date": "2024-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:02:50.227385+00:00",
+      "body_file": "ebfcd61c1587ee85bfa775c39417c612312ba4b81c2fd958012f9c1131eb7b42.20261103T200250226746Z.818b079d39d8.json",
+      "body_sha256": "818b079d39d8dad1ed0c13f15f776ef60ebd94304cc0e83ab52b432b43a19247",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.30169,
+          "longitude": 36.75919,
+          "start_date": "2025-01-01",
+          "end_date": "2025-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:12.948358+00:00",
+      "body_file": "c18fb69f6a050a66ea1dc93ee1e869e43c254079cac23262b09064220be1c4af.20261103T200312947063Z.8a7a8d28d5b0.json",
+      "body_sha256": "8a7a8d28d5b0ef76b84fc1aafe25b75d526b64733f1dc61de90032fe2cdb1e5d",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.320572,
+          "longitude": 36.815446,
+          "start_date": "2021-04-01",
+          "end_date": "2021-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:14.451594+00:00",
+      "body_file": "d9ca107b93fef67e72de682e8840aedd32852164ff43c5eb130a522eed772585.20261103T200314450109Z.400ba40b54fe.json",
+      "body_sha256": "400ba40b54fe8da09d642a14028b4b3096f03e92fb8ae1d6ebc18ddbbf72fe6d",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.320572,
+          "longitude": 36.815446,
+          "start_date": "2022-01-01",
+          "end_date": "2022-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:16.153471+00:00",
+      "body_file": "9d34f3f2db9e3ba4b7d4bc8cfc608914fb9d78a79348bca39785c50d581977d5.20261103T200316152689Z.9c08d2fb158d.json",
+      "body_sha256": "9c08d2fb158d279369d27543b72145062934dce8f43098330f256b6c7030647f",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.320572,
+          "longitude": 36.815446,
+          "start_date": "2023-01-01",
+          "end_date": "2023-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:17.746349+00:00",
+      "body_file": "3958c76e0efc831a5131ed060bc46ec3d65569f9c41bb5085eb8c9deea345fee.20261103T200317744704Z.f96809ae0c75.json",
+      "body_sha256": "f96809ae0c75e8808d1922d3c6368db2a76aff3f891ed04564d9bec309ed67ef",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.320572,
+          "longitude": 36.815446,
+          "start_date": "2024-01-01",
+          "end_date": "2024-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:19.313501+00:00",
+      "body_file": "34474f937be38617b658c2f7e000e94ed619000af2c3502b1e457aa058e176ab.20261103T200319312724Z.2260db2ca547.json",
+      "body_sha256": "2260db2ca547786b84f037473246aa61040d6cdd8ec13984bb7346cec884af7b",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.320572,
+          "longitude": 36.815446,
+          "start_date": "2025-01-01",
+          "end_date": "2025-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:03:20.835967+00:00",
+      "body_file": "27a3826472aebfd0d1ab7dea545991dbdfd058fd8ae527774339c616a5a2ab51.20261103T200320835224Z.6ec33231a823.json",
+      "body_sha256": "6ec33231a82358baf6fcf638481ce721ecee8975a20eb6e5012a1852b6c728ca",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.28,
+          "longitude": 36.87,
+          "start_date": "2021-04-01",
+          "end_date": "2021-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:04:06.349092+00:00",
+      "body_file": "97914728a29bbd9a7d9d86b0fab9e461d25f1f261cc3cff4b9ac5a5cec0441c8.20261103T200406347427Z.cd1ab4fa1ff5.json",
+      "body_sha256": "cd1ab4fa1ff5bf98ec0ba214cd3c854caa24ca52028b2246d100aef42c3ce83a",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.28,
+          "longitude": 36.87,
+          "start_date": "2022-01-01",
+          "end_date": "2022-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:04:58.698532+00:00",
+      "body_file": "2ec3f52ca66e267e9fd895828d0c870246bd7ba2bd490eb37a38d50d884b4345.20261103T200458697265Z.21a5909e6c34.json",
+      "body_sha256": "21a5909e6c343fca292733b6234dfa89b9ebe837b9d35acb502086942f7d20dd",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.28,
+          "longitude": 36.87,
+          "start_date": "2023-01-01",
+          "end_date": "2023-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:05:57.117092+00:00",
+      "body_file": "273dcc98916d53ce0944cbccb2d0bfa6345632cca28742fe6d266cd8ce3ad909.20261103T200557116398Z.f80b2f2efa56.json",
+      "body_sha256": "f80b2f2efa56a3dfa70e417c401c232808da3fe2c76e5fd30e766669096bf5ea",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.28,
+          "longitude": 36.87,
+          "start_date": "2024-01-01",
+          "end_date": "2024-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:06:50.453369+00:00",
+      "body_file": "1ac5d696aa10201a233830bfccfba4e495edf46bf1b6295773a3981fa140d259.20261103T200650452289Z.c3660abd905c.json",
+      "body_sha256": "c3660abd905cd2445c3b2ccff5365bb4d4922f087e1bcc5d432e8ca9f897e6bf",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    },
+    {
+      "request": {
+        "endpoint": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+        "parameters": {
+          "latitude": -1.28,
+          "longitude": 36.87,
+          "start_date": "2025-01-01",
+          "end_date": "2025-12-31",
+          "models": "gfs_global",
+          "daily": "temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,wind_speed_10m_mean,pressure_msl_mean",
+          "timezone": "GMT",
+          "temperature_unit": "celsius",
+          "wind_speed_unit": "kmh",
+          "precipitation_unit": "mm",
+          "cell_selection": "nearest",
+          "elevation": "nan"
+        }
+      },
+      "retrieved_at_utc": "2026-11-03T20:07:31.648820+00:00",
+      "body_file": "49f569343dfbeeba1592f44d8eab7c80000ffdffde0960a2528430230e8eac85.20261103T200731647794Z.378ac797234f.json",
+      "body_sha256": "378ac797234f8cb6adfbe38f2354b16c698ac3497bc3a9ecc497ee2dd8ec49f9",
+      "provider_model": "gfs_global",
+      "provider_model_version": "not supplied by API",
+      "forecast_run_issued_at": "not supplied; stitched archive is not an as-issued forecast",
+      "http_status": 200
+    }
+  ]
+}

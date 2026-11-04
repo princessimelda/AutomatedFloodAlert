@@ -81,4 +81,4 @@ Logs are `.cache/fresh.stdout.log` and `.cache/fresh.stderr.log`. The job only r
 
 ## What comes next
 
-This task ingests weather and prepares compatible, dated feature rows. It does **not** execute the classifier, write Supabase prediction tables, or change Flutter screens. Next, apply the frozen model to checked ready inputs, save experimental high-rainfall outputs with timestamps, expose them through the backend and consume them in Flutter. The historical archive's retrospective evaluation still does not establish as-issued lead-time skill or actual flood prediction accuracy.
+This command ingests weather and prepares compatible, dated feature rows. The separate [cloud worker](../weather_worker/README.md) now applies the frozen classifier and persists experimental results in Supabase. Backend endpoints and Flutter integration remain the next application step. The historical archive's retrospective evaluation still does not establish as-issued lead-time skill or actual flood prediction accuracy.

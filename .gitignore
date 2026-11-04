@@ -1,6 +1,7 @@
 # Repository scope: application, backend, database and research code.
 /*
 !/.gitignore
+!/.dockerignore
 !/README.md
 !/weatherdata.ipynb
 !/nairobi_station_pipeline.ipynb

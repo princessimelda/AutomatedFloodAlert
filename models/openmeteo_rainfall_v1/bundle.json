@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "model_version": "nairobi-gfs-rainfall-lr-a5bacdf0368b",
+  "model_family": "logistic_regression",
+  "provider_model": "gfs_global",
+  "target_kind": "high_rainfall_proxy",
+  "operational_flood_model": false,
+  "calibrated_flood_probability": false,
+  "score_threshold": 0.5,
+  "source_run": "20261103T200731Z_a824a6ce",
+  "source_run_sha256": "0e8d9967000a3c9bb7ff3ffb5895f3a909e6e437adc8d8c534172e3d143d4e1a",
+  "predictors": [
+    "latitude",
+    "longitude",
+    "elevation_m",
+    "rain_history_days",
+    "season_sin",
+    "season_cos",
+    "prcp_sum_prev7",
+    "tavg_lag1",
+    "tavg_lag2",
+    "tavg_mean_prev3",
+    "tavg_mean_prev7",
+    "tmin_lag1",
+    "tmin_lag2",
+    "tmin_mean_prev3",
+    "tmin_mean_prev7",
+    "tmax_lag1",
+    "tmax_lag2",
+    "tmax_mean_prev3",
+    "tmax_mean_prev7",
+    "prcp_lag1",
+    "prcp_lag2",
+    "prcp_mean_prev3",
+    "prcp_mean_prev7",
+    "wspd_lag1",
+    "wspd_lag2",
+    "wspd_mean_prev3",
+    "wspd_mean_prev7",
+    "pres_lag1",
+    "pres_lag2",
+    "pres_mean_prev3",
+    "pres_mean_prev7",
+    "station_id"
+  ],
+  "rain_threshold_mm": {
+    "gfs_global_208550fca3630a9d": 10.044999999999998,
+    "gfs_global_8be85a35b50b27d6": 10.369999999999992
+  },
+  "runtime_versions": {
+    "numpy": "2.3.2",
+    "pandas": "2.3.1",
+    "scikit-learn": "1.7.1",
+    "joblib": "1.5.2"
+  },
+  "files": {
+    "model.joblib": "a5bacdf0368bd89cc682f9fb7ac8ac8a5c556cbdef21205d0cc6dfb0006f47b8",
+    "reference/source_manifest.json": "0ba9002b1e1226a7d6d4a2a049173d3fbb87e7c9814f2c0d6b2a409ad6a834e5",
+    "reference/stations.csv": "9a99ba59380e7fc488ca19253a9554f2056e7760046fc5af6b985159b9b3360a",
+    "reference/run.json": "bf4d23b9ca7f04e7e9df2d13b55adf8f0bb15bf9a1742082bd7b1cef48a1620e"
+  }
+}
