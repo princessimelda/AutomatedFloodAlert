@@ -204,7 +204,11 @@ class Landscape extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     height: height,
     width: double.infinity,
-    child: CustomPaint(painter: LandscapePainter()),
+    child: ExcludeSemantics(
+      child: RepaintBoundary(
+        child: ClipRect(child: CustomPaint(painter: LandscapePainter())),
+      ),
+    ),
   );
 }
 
@@ -214,31 +218,90 @@ class LandscapePainter extends CustomPainter {
     final w = s.width;
     final h = s.height;
     final p = Paint();
+    c.drawRect(Offset.zero & s, p..color = const Color(0xFFF0F6FF));
     c.drawCircle(
-      Offset(w * .78, h * .25),
-      h * .19,
-      p..color = const Color(0xFFE5F0FC),
+      Offset(w * .8, h * .22),
+      math.min(w * .08, h * .17),
+      p..color = const Color(0xFFFFE5AC),
     );
+    // Quiet sky details stay behind the skyline and never carry information.
+    for (final x in [.16, .44]) {
+      final cloud = Path()
+        ..addOval(
+          Rect.fromCenter(
+            center: Offset(w * x, h * .22),
+            width: w * .1,
+            height: h * .05,
+          ),
+        )
+        ..addOval(
+          Rect.fromCenter(
+            center: Offset(w * (x + .02), h * .19),
+            width: w * .05,
+            height: h * .08,
+          ),
+        );
+      c.drawPath(cloud, p..color = Colors.white);
+    }
     final random = math.Random(8);
-    for (var i = 0; i < 30; i++) {
-      final x = w * i / 30;
-      final bh = h * (.08 + random.nextDouble() * .28);
+    final count = (w / 38).round().clamp(8, 22);
+    final slot = w / count;
+    for (var i = 0; i < count; i++) {
+      final x = slot * i;
+      final bh = h * (.12 + random.nextDouble() * .23);
+      final buildingWidth = slot * .74;
+      final top = h * .65 - bh;
       c.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(x, h * .66 - bh, w / 36, bh),
+          Rect.fromLTWH(x, top, buildingWidth, bh),
           const Radius.circular(2),
         ),
         p
           ..color = Color.lerp(
-            const Color(0xFFDBEAF8),
-            const Color(0xFFB6D3ED),
+            const Color(0xFFD4E4F4),
+            const Color(0xFFA9C8E6),
             random.nextDouble(),
           )!,
       );
-      if (i % 6 == 0) {
-        c.drawRect(Rect.fromLTWH(x + w / 80, h * .66 - bh - 12, 3, 12), p);
+      for (var floor = 0; floor < 3; floor++) {
+        for (var column = 0; column < 2; column++) {
+          c.drawRect(
+            Rect.fromLTWH(
+              x + buildingWidth * (.2 + column * .4),
+              top + bh * (.18 + floor * .24),
+              buildingWidth * .12,
+              h * .018,
+            ),
+            p..color = const Color(0xFFECF4FC),
+          );
+        }
       }
     }
+    // A simplified civic tower gives the city silhouette a local reference.
+    final tower = Rect.fromLTWH(w * .61, h * .24, w * .065, h * .4);
+    c.drawRRect(
+      RRect.fromRectAndRadius(tower, Radius.circular(w * .02)),
+      p..color = const Color(0xFF90B5D8),
+    );
+    for (var i = 1; i < 7; i++) {
+      c.drawRect(
+        Rect.fromLTWH(
+          tower.left,
+          tower.top + tower.height * i / 7,
+          tower.width,
+          h * .006,
+        ),
+        p..color = const Color(0xFFC9DDED),
+      );
+    }
+    c.drawOval(
+      Rect.fromCenter(
+        center: Offset(tower.center.dx, tower.top),
+        width: tower.width * 1.3,
+        height: h * .045,
+      ),
+      p..color = const Color(0xFF739FC6),
+    );
     for (var i = 0; i < 3; i++) {
       final y = h * (.52 + i * .16);
       final path = Path()
@@ -251,8 +314,8 @@ class LandscapePainter extends CustomPainter {
         path,
         p
           ..color = [
-            const Color(0xFFCCE1F8),
-            const Color(0xFF92C1EE),
+            const Color(0xFFCCE5E3),
+            const Color(0xFF94C8CD),
             const Color(0xFF3E86CE),
           ][i],
       );
@@ -264,6 +327,23 @@ class LandscapePainter extends CustomPainter {
       ..cubicTo(w * .34, h * .91, w * .78, h * .8, w * .8, h * .73)
       ..close();
     c.drawPath(river, p..color = const Color(0xFFDAEDFE));
+    for (final x in [.1, .88]) {
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(w * x, h * .72, w * .009, h * .12),
+          const Radius.circular(2),
+        ),
+        p..color = const Color(0xFF2D648E),
+      );
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(w * (x + .0045), h * .7),
+          width: w * .075,
+          height: h * .19,
+        ),
+        p..color = const Color(0xFF438F9B),
+      );
+    }
   }
 
   @override
