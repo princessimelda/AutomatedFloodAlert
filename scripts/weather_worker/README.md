@@ -18,6 +18,11 @@ Failed attempts have an explicit status/error code. Incomplete input produces no
 
 ## Packaged model
 
+The [version-one inference contract](../../models/INFERENCE_CONTRACT.md) specifies
+units, ordered predictors, dated inputs/outputs, expiry and interpretation.
+The worker enforces this boundary and stores the envelope in run metadata.
+No public inference endpoint is introduced here.
+
 `models/openmeteo_rainfall_v1/` contains the selected 6.7 KB model, predictor order, rainfall thresholds, provider contract, grid metadata, a minimal compatible reference and checksums. The package preserves its original source-run hash and experimental purpose. The current version is `nairobi-gfs-rainfall-lr-a5bacdf0368b`.
 
 The model was selected on validation data before the original test evaluation. Its 2025 test precision was 0.2558 and recall 0.8462 against the provider-derived rainfall proxy. Deployment does not improve or revalidate these metrics. See the [research method and limitations](../openmeteo_pipeline/README.md).

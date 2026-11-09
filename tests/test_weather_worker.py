@@ -6,7 +6,7 @@ import os
 import tempfile
 import unittest
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,6 +18,7 @@ from psycopg.rows import dict_row
 from scripts.openmeteo_pipeline.fresh import LIVE_ENDPOINT
 from scripts.openmeteo_pipeline.source import VARIABLES, ApiClient
 from scripts.weather_worker.bundle import load_bundle, predict
+from scripts.weather_worker.contract import InferenceContractError, infer_current
 from scripts.weather_worker.store import PostgresStore
 from scripts.weather_worker.worker import run_worker
 
@@ -45,6 +46,7 @@ class MemoryStore:
             "weather": cleaned,
             "predictions": predictions,
             "responses": responses,
+            "snapshot": snapshot,
         }
         self.complete = True
         return snapshot["status"]
@@ -118,6 +120,9 @@ class WorkerTests(WorkerFixtures):
         self.assertEqual(len(store.saved["weather"]), 14)
         self.assertEqual(len(store.saved["predictions"]), 2)
         self.assertEqual(len(store.saved["responses"]), 3)
+        contract = store.saved["snapshot"]["inference_contract"]
+        self.assertEqual(contract["contract_version"], "rainfall-inference/v1")
+        self.assertFalse(contract["calibrated_flood_probability"])
         for source in store.saved["responses"]:
             self.assertEqual(
                 hashlib.sha256(source["body"]).hexdigest(),
@@ -171,6 +176,106 @@ class WorkerTests(WorkerFixtures):
         frame.loc[0, "prcp_lag1"] = float("inf")
         with self.assertRaises(ValueError):
             predict(self.bundle, frame)
+
+
+class InferenceContractTests(WorkerFixtures):
+    def setUp(self):
+        super().setUp()
+        self.clock = datetime(2026, 11, 9, 12, tzinfo=UTC)
+        store = MemoryStore()
+        run_worker(self.bundle, store, now=self.clock, api=self.api())
+        self.snapshot = store.saved["snapshot"]
+        self.frame = pd.DataFrame(
+            [
+                {**row["features"], "time": "2026-11-09"}
+                for row in store.saved["predictions"]
+            ]
+        )
+
+    def test_serialisable_envelope_preserves_scores_and_release(self):
+        import json
+
+        result = infer_current(self.bundle, self.frame, self.snapshot, now=self.clock)
+        json.dumps(result, allow_nan=False)
+        self.assertEqual(result["predictions"], predict(self.bundle, self.frame))
+        self.assertEqual(result["valid_until_utc"], "2026-11-09T14:00:00+00:00")
+        self.assertEqual(result["score_threshold"], 0.5)
+        self.assertEqual(result["bundle_sha256"], self.bundle["sha256"])
+
+    def test_rejects_stale_future_and_naive_timestamps(self):
+        for clock, code in [
+            (self.clock + timedelta(hours=2), "stale_inputs"),
+            (self.clock - timedelta(seconds=1), "invalid_timestamp_order"),
+            (self.clock.replace(tzinfo=None), "invalid_timestamp"),
+        ]:
+            with (
+                self.subTest(clock=clock),
+                self.assertRaises(InferenceContractError) as caught,
+            ):
+                infer_current(self.bundle, self.frame, self.snapshot, now=clock)
+            self.assertEqual(caught.exception.code, code)
+
+    def test_rejects_missing_or_incompatible_metadata(self):
+        for mutation, code in [
+            ({"status": "incomplete"}, "inputs_not_ready"),
+            ({"provider_model": "different"}, "provider_model_mismatch"),
+            ({"history_end_utc": "2026-11-09"}, "invalid_history_window"),
+            ({"target_date_utc": "invalid"}, "invalid_date"),
+            ({"expires_at_utc": "2026-11-09T11:00:00Z"}, "invalid_timestamp_order"),
+        ]:
+            with (
+                self.subTest(mutation=mutation),
+                self.assertRaises(InferenceContractError) as caught,
+            ):
+                infer_current(
+                    self.bundle,
+                    self.frame,
+                    {**self.snapshot, **mutation},
+                    now=self.clock,
+                )
+            self.assertEqual(caught.exception.code, code)
+        with self.assertRaisesRegex(InferenceContractError, "missing_snapshot_fields"):
+            infer_current(self.bundle, self.frame, {}, now=self.clock)
+
+    def test_rejects_missing_invalid_and_duplicate_predictors(self):
+        for frame in [
+            self.frame.drop(columns="prcp_lag1"),
+            self.frame.assign(prcp_lag1=float("nan")),
+            self.frame.assign(prcp_lag1=float("inf")),
+            self.frame.assign(prcp_lag1="not a number"),
+            self.frame.assign(station_id="untrained"),
+            pd.concat([self.frame, self.frame.iloc[:1]]),
+            self.frame.iloc[:0],
+        ]:
+            with (
+                self.subTest(shape=frame.shape),
+                self.assertRaisesRegex(InferenceContractError, "invalid_predictors"),
+            ):
+                infer_current(self.bundle, frame, self.snapshot, now=self.clock)
+        for frame, code in [
+            (self.frame.assign(time="2026-11-08"), "target_date_mismatch"),
+            (self.frame.drop(columns="time"), "missing_target_dates"),
+            (self.frame.drop(columns="station_id"), "missing_grid_ids"),
+        ]:
+            with (
+                self.subTest(code=code),
+                self.assertRaisesRegex(InferenceContractError, code),
+            ):
+                infer_current(self.bundle, frame, self.snapshot, now=self.clock)
+
+    def test_midnight_caps_even_recent_inputs(self):
+        clock = self.clock.replace(hour=23, minute=30)
+        snapshot = {
+            **self.snapshot,
+            "retrieved_at_utc": clock.isoformat(),
+            "completed_at_utc": clock.isoformat(),
+        }
+        result = infer_current(self.bundle, self.frame, snapshot, now=clock)
+        self.assertEqual(result["valid_until_utc"], "2026-11-10T00:00:00+00:00")
+        with self.assertRaisesRegex(InferenceContractError, "stale_inputs"):
+            infer_current(
+                self.bundle, self.frame, snapshot, now=clock + timedelta(minutes=30)
+            )
 
 
 @unittest.skipUnless(
@@ -274,7 +379,7 @@ class WorkerDatabaseTests(WorkerFixtures):
             return rows
 
         with (
-            patch("scripts.weather_worker.worker.predict", side_effect=invalid_score),
+            patch("scripts.weather_worker.contract.predict", side_effect=invalid_score),
             self.assertRaises(psycopg.errors.CheckViolation),
         ):
             run_worker(
