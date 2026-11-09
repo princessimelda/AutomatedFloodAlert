@@ -103,7 +103,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Continue'),
+                  Flexible(
+                    child: Text('Continue', textAlign: TextAlign.center),
+                  ),
                   SizedBox(width: 14),
                   Icon(Icons.arrow_forward_rounded, size: 20),
                 ],
@@ -122,14 +124,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           const Row(
             children: [
               Expanded(child: Divider(color: line)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  'HERE TO HELP YOU',
-                  style: TextStyle(
-                    fontSize: 9,
-                    letterSpacing: 1.6,
-                    color: muted,
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: Text(
+                    'HERE TO HELP YOU',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 9,
+                      letterSpacing: 1.6,
+                      color: muted,
+                    ),
                   ),
                 ),
               ),
@@ -214,7 +219,9 @@ class AuthLayout extends StatelessWidget {
     body: SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final wide = constraints.maxWidth >= 850;
+          final wide =
+              constraints.maxWidth >= 1000 &&
+              MediaQuery.textScalerOf(context).scale(16) <= 24;
           final form = Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 470),

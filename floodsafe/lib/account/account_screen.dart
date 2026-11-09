@@ -277,6 +277,10 @@ class _AccountScreenState extends State<AccountScreen> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Back to Home'),
                 ),
+                if (!signedIn) ...[
+                  const SizedBox(height: 24),
+                  const Landscape(height: 140),
+                ],
               ],
             ),
           ),
