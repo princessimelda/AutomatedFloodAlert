@@ -4,12 +4,17 @@ Supports M2 issues #6 (spatial schema), #7 (migrations/seeds), public-read porti
 
 ## Current ERD
 
+The [complete database design](../documentation/DATABASE_DESIGN.md) covers #6's
+application and worker schema, proposed routing/delivery/assistant ERDs, keys,
+timestamps, ownership and retention. Proposed entities are explicitly not deployed.
+
 ```mermaid
 erDiagram
   AUTH_USERS ||--o| PROFILES : owns
   AUTH_USERS ||--o{ SAVED_PLACES : owns
   AUTH_USERS ||--o{ USER_LOCATION_TELEMETRY : owns
   AUTH_USERS ||--o{ DEVICES : registers
+  PLACES |o--o{ SAVED_PLACES : bookmarks
   PLACES ||--o{ RISK_ASSESSMENTS : describes
   SUSCEPTIBILITY_GRID ||--o{ RISK_ASSESSMENTS : locates
   PLACES ||--o{ ADVISORIES : scopes
@@ -25,6 +30,9 @@ erDiagram
     uuid user_id FK
     geography position
     text label
+    text place_id FK
+    boolean is_default
+    timestamptz created_at
   }
   USER_LOCATION_TELEMETRY {
     uuid id PK
