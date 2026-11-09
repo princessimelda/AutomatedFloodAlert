@@ -9,7 +9,7 @@ import pandas as pd
 from scripts.nairobi_pipeline.data import file_hash
 from scripts.openmeteo_pipeline.fresh import refresh_inputs, utc_now
 
-from .bundle import predict
+from .contract import InferenceContractError, infer_current
 
 
 def run_worker(bundle, store, *, now=None, api=None):
@@ -33,9 +33,11 @@ def run_worker(bundle, store, *, now=None, api=None):
             )
             run_path = root / "inputs" / snapshot["run_id"]
             frame = pd.read_csv(run_path / "current_inputs.csv")
-            predictions = (
-                predict(bundle, frame) if snapshot["status"] == "ready" else []
-            )
+            predictions = []
+            if snapshot["status"] == "ready":
+                result = infer_current(bundle, frame, snapshot, now=utc_now(now))
+                predictions = result.pop("predictions")
+                snapshot["inference_contract"] = result
             source = json.loads((run_path / "source_manifest.json").read_text())
             responses = []
             for receipt in source["requests"]:
@@ -59,7 +61,12 @@ def run_worker(bundle, store, *, now=None, api=None):
             }
     except Exception as error:
         if run is not None:
-            store.fail(run, type(error).__name__, utc_now(now))
+            code = (
+                error.code
+                if isinstance(error, InferenceContractError)
+                else type(error).__name__
+            )
+            store.fail(run, code, utc_now(now))
         raise
     finally:
         store.unlock()
