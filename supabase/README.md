@@ -1,8 +1,28 @@
 # Database design and migration plan
 
+## 22 November alert prototype
+
+Migration `202611220001_alert_prototype` adds eight private `floodsafe_alerting`
+tables for immutable source events, versioned test rules, lifecycle records,
+multi-place coverage, audit, notification jobs/attempts and per-user read
+acknowledgements. This implements a bounded subset of the earlier planned design;
+full routing, organisation/contact management and escalation remain future work.
+All tables enable RLS, ordinary app clients have no grants, and the backend reader
+can see only the bounded current-publication view. Service code uses a separate
+non-BYPASSRLS role. Audit/event/rule records have no service update/delete grant.
+
+The new migration was applied to the development database on 22 November after
+isolated tests. The real API approval/publication flow was verified with SMS
+disabled. See [the demo guide](../documentation/ALERT_DEMO.md) for identities,
+delivery states and remaining physical-handset evidence.
+
 Supports M2 issues #6 (spatial schema), #7 (migrations/seeds), public-read portions of #8 (APIs), and Flutter #13. Backend setup is in [backend/README.md](../backend/README.md). The separate [experimental weather worker](../scripts/weather_worker/README.md) adds private ingestion/inference persistence for #9. Operational flood validation and queued alerts remain later work.
 
 ## Current ERD
+
+The [complete database design](../documentation/DATABASE_DESIGN.md) covers #6's
+application and worker schema, proposed routing/delivery/assistant ERDs, keys,
+timestamps, ownership and retention. Proposed entities are explicitly not deployed.
 
 ```mermaid
 erDiagram
@@ -10,6 +30,7 @@ erDiagram
   AUTH_USERS ||--o{ SAVED_PLACES : owns
   AUTH_USERS ||--o{ USER_LOCATION_TELEMETRY : owns
   AUTH_USERS ||--o{ DEVICES : registers
+  PLACES |o--o{ SAVED_PLACES : bookmarks
   PLACES ||--o{ RISK_ASSESSMENTS : describes
   SUSCEPTIBILITY_GRID ||--o{ RISK_ASSESSMENTS : locates
   PLACES ||--o{ ADVISORIES : scopes
@@ -25,6 +46,9 @@ erDiagram
     uuid user_id FK
     geography position
     text label
+    text place_id FK
+    boolean is_default
+    timestamptz created_at
   }
   USER_LOCATION_TELEMETRY {
     uuid id PK

@@ -1,6 +1,6 @@
 # FloodSafe backend
 
-A local FastAPI service backed by Supabase PostgreSQL/PostGIS. This increment implements public place lookup, timestamped risk summaries and approved advisories. Private profile/location/device storage is designed but no personal-data API routes are exposed yet.
+A FastAPI service backed by Supabase PostgreSQL/PostGIS. It provides public place/risk/advisory information and a separate controlled TEST-alert workflow with approval, an online inbox, recipient acknowledgement and a durable SMS outbox. See the [two-channel demo guide](../documentation/ALERT_DEMO.md) and [completion plan](../documentation/COMPLETION_PLAN.md). SMS starts disabled.
 
 ## Install
 
@@ -94,7 +94,14 @@ Advisories include ID, title, body, language, source, HTTPS source URL, publicat
 
 Errors have `{code,message}`: 422 invalid input, 404 unknown/unpublished place, 503 unavailable data, 500 unexpected failure. Validation responses do not echo coordinate bodies or credentials. GPS uses a POST body, not a URL; the backend neither stores those fixes nor logs bodies. Run without access logging and apply equivalent redaction if adding a reverse proxy.
 
-No `/me`, write/publishing, phone-verification, model-inference, route, SMS or notification endpoint is implemented here. Protected user routes require verified Supabase JWTs, ownership enforcement, rate limiting and tests in a subsequent increment; do not accept a client-supplied user ID as authentication.
+The `/v1` information routes remain read-only. Additive `/api/v1` alert routes
+support events, versioned test rules, independent approval/publication,
+resolution/cancellation, notification monitoring and reporting. Operator keys are
+server-only; recipient acknowledgement verifies the Supabase session and ignores
+client-provided identity. `/me`, phone OTP, verified evacuation routing and an
+operational flood-inference endpoint remain unimplemented. The prototype has no
+public arbitrary-SMS sending endpoint; only enrolled testers can be queued after
+approval. See [the endpoint/demo guide](../documentation/ALERT_DEMO.md).
 
 ## Database tests
 

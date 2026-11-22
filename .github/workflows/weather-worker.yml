@@ -35,4 +35,18 @@ jobs:
         run: python -c "import os,sys; sys.exit(0 if os.environ.get('FLOODSAFE_WORKER_DB_CONFIG') else 'Configure FLOODSAFE_WORKER_DB_CONFIG in repository Actions secrets.')"
       - run: python -m pip install -r scripts/weather_worker/requirements.txt
       - name: Ingest, infer and persist experimental results
-        run: python -m scripts.weather_worker run
+        run: python -m scripts.weather_worker run --result-file "$RUNNER_TEMP/weather-worker-result.json"
+      - name: Summarise actual worker outcome
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          result_path = Path(os.environ["RUNNER_TEMP"]) / "weather-worker-result.json"
+          result = json.loads(result_path.read_text()) if result_path.exists() else {"status": "not_run"}
+          allowed = {key: result[key] for key in ("status", "run_id", "model_version", "prediction_count", "error_code") if key in result}
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## Experimental rainfall worker\n\n```json\n" + json.dumps(allowed, indent=2) + "\n```\n\n")
+              summary.write("Weather/model results are separate from approved app alerts. Check validity; a successful job is not a flood warning.\n")
+          PY

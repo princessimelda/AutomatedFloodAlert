@@ -12,6 +12,8 @@ import 'account/account_screen.dart';
 import 'ui.dart';
 import 'data/content_repository.dart';
 import 'assistant/assistant_repository.dart';
+import 'alerts/alert_repository.dart';
+import 'alerts/alert_inbox.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -230,6 +232,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        1 => AlertInbox(
+          repository: widget.repository is AlertRepository
+              ? widget.repository as AlertRepository
+              : const EmptyAlertRepository(),
+          onSignIn: _profile,
+          accountId: widget.accountRepository?.userId,
+          placeId: _dashboard.place?.id.startsWith('gps:') == false
+              ? _dashboard.place?.id
+              : null,
+        ),
         _ => AssistantScreen(
           repository:
               widget.assistantRepository ?? const EmptyAssistantRepository(),
@@ -245,6 +257,10 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icon(Icons.home_outlined),
           selectedIcon: Icon(Icons.home),
           label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.notifications_outlined),
+          label: 'Alerts',
         ),
         NavigationDestination(icon: Icon(Icons.help_outline), label: 'Help'),
       ],

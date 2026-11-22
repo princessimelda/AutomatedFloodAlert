@@ -18,6 +18,11 @@ Failed attempts have an explicit status/error code. Incomplete input produces no
 
 ## Packaged model
 
+The [version-one inference contract](../../models/INFERENCE_CONTRACT.md) specifies
+units, ordered predictors, dated inputs/outputs, expiry and interpretation.
+The worker enforces this boundary and stores the envelope in run metadata.
+No public inference endpoint is introduced here.
+
 `models/openmeteo_rainfall_v1/` contains the selected 6.7 KB model, predictor order, rainfall thresholds, provider contract, grid metadata, a minimal compatible reference and checksums. The package preserves its original source-run hash and experimental purpose. The current version is `nairobi-gfs-rainfall-lr-a5bacdf0368b`.
 
 The model was selected on validation data before the original test evaluation. Its 2025 test precision was 0.2558 and recall 0.8462 against the provider-derived rainfall proxy. Deployment does not improve or revalidate these metrics. See the [research method and limitations](../openmeteo_pipeline/README.md).
@@ -71,6 +76,12 @@ python3 -m venv .venv-cloud
 The first invocation in an hour fetches and persists data. Repeating it after success returns `already_complete`. A failed or incomplete slot may be retried. Two schedulers cannot run this worker concurrently: database locking supplements the hosted workflow's concurrency group. Existing local **input-only** refreshes do not create cloud predictions and can be disabled after hosted runs are verified.
 
 ## Hosted schedule
+
+The CLI supports `--result-file` for a small credential-free outcome document.
+The workflow uses it to show actual ready/incomplete/failed/busy status in the
+Actions summary, including run ID and safe error code. A green ingestion job is
+not evidence of published alerts or handset delivery. The [22 November audit](../../documentation/COMPLETION_PLAN.md#workflow-audit--22-november)
+records recent provider timeouts and multi-hour scheduling gaps.
 
 `.github/workflows/weather-worker.yml` uses a GitHub-hosted Ubuntu runner, Python 3.13 and the committed model bundle. It runs at **17 minutes past each hour** (also 17 minutes past each hour in Nairobi), supports manual dispatch, and permits execution only from `main`. It has a ten-minute timeout, one-run concurrency and read-only repository permissions.
 

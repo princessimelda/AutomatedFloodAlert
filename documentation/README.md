@@ -5,6 +5,12 @@
 **Application evidence baseline:** Commit `e60edd5`, with backend/database commit `8057174`; integrated through PR #31 as merge `156546f7`
 **Presentation:** Text and tables only; no images, diagrams or screenshots are included.
 
+**Later engineering updates:** This chapter remains the dated research draft.
+The [22 November completion plan](COMPLETION_PLAN.md) maps the supplied Automated
+Alert System specification to the current prototype; [ALERT_DEMO.md](ALERT_DEMO.md)
+documents the new alert workflow and separates implemented tests from outstanding
+live SMS evidence. Those updates do not retroactively change this draft's results.
+
 This document follows the applicable Chapter 5 structure in *Research Writing for CS 2 Projects — 2026*, supplied as `Research%20Writing%20for%20CS%202%20Projects%20-%202026.pdf.pdf`, PDF pages 79–99. FloodSafe is a hybrid application and machine-learning research project; the software and AI/ML routes were therefore combined. The hardware-assembly, IoT, blockchain and specialised cybersecurity routes do not describe the implemented project and were omitted.
 
 The draft distinguishes implementation, automated verification, informal demonstration and outstanding evaluation. Historical development results are identified as such; no new training, final test-set evaluation or user study was conducted to prepare this document. The section numbering, formal research-objective wording and Chapter 4 requirement identifiers remain subject to reconciliation with the approved proposal and supervisor guidance. The GitHub issue references below provide existing development traceability, rather than invented approved requirement IDs.

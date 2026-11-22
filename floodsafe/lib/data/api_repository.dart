@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../dashboard/dashboard_data.dart';
 import 'content_repository.dart';
 import '../assistant/assistant_repository.dart';
+import '../alerts/alert_repository.dart';
 
 class ApiFailure implements Exception {
   const ApiFailure(this.message);
@@ -13,10 +14,17 @@ class ApiFailure implements Exception {
 }
 
 class ApiRepository
-    implements DashboardRepository, ContentRepository, AssistantRepository {
-  ApiRepository({required String baseUrl, http.Client? client})
-    : _baseUrl = Uri.parse(baseUrl),
-      _client = client ?? http.Client() {
+    implements
+        DashboardRepository,
+        ContentRepository,
+        AssistantRepository,
+        AlertRepository {
+  ApiRepository({
+    required String baseUrl,
+    http.Client? client,
+    this.accessToken,
+  }) : _baseUrl = Uri.parse(baseUrl),
+       _client = client ?? http.Client() {
     if (!_baseUrl.hasAuthority ||
         _baseUrl.userInfo.isNotEmpty ||
         _baseUrl.hasQuery ||
@@ -36,6 +44,70 @@ class ApiRepository
   }
   final Uri _baseUrl;
   final http.Client _client;
+  final String? Function()? accessToken;
+
+  @override
+  Future<List<PublicAlert>> alerts({String? placeId}) async {
+    final result = await _decode(
+      _client.get(
+        _url('/api/v1/alerts', {
+          if (placeId != null && !placeId.startsWith('gps:'))
+            'place_id': placeId,
+        }),
+      ),
+    );
+    final ids = <String>{};
+    return _list(result).map((item) {
+      final json = _object(item);
+      final id = _string(json, 'id');
+      final issued = _date(json, 'issued_at');
+      final until = _date(json, 'valid_until');
+      final severity = _string(json, 'severity');
+      final locations = _list(json['locations'])
+          .map((l) => _string(_object(l), 'name'))
+          .toList();
+      if (!RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(id) ||
+          !ids.add(id) ||
+          !_bool(json, 'is_demo') ||
+          !until.isAfter(issued) ||
+          until.difference(issued) > const Duration(days: 1) ||
+          !const [
+            'information',
+            'advisory',
+            'warning',
+            'critical',
+          ].contains(severity) ||
+          locations.isEmpty) {
+        throw const ApiFailure('Invalid published test alert.');
+      }
+      return PublicAlert(
+        id: id,
+        title: _string(json, 'title'),
+        message: _string(json, 'message'),
+        action: _string(json, 'recommended_action'),
+        severity: severity,
+        locations: locations,
+        issuedAt: issued,
+        validUntil: until,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> acknowledge(String id) async {
+    final token = accessToken?.call();
+    if (token == null ||
+        token.isEmpty ||
+        !RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(id)) {
+      throw const ApiFailure('Sign in to acknowledge.');
+    }
+    await _decode(
+      _client.post(
+        _url('/api/v1/alerts/$id/acknowledge'),
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
+  }
 
   Uri _url(String path, [Map<String, String>? query]) => _baseUrl.replace(
     path: '${_baseUrl.path.replaceFirst(RegExp(r'/$'), '')}$path',

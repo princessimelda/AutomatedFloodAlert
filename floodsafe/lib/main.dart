@@ -45,7 +45,12 @@ Future<void> main() async {
     runApp(FloodSafeApp(accountRepository: account));
   } else {
     try {
-      final api = ApiRepository(baseUrl: url);
+      final api = ApiRepository(
+        baseUrl: url,
+        accessToken: () => account == null
+            ? null
+            : Supabase.instance.client.auth.currentSession?.accessToken,
+      );
       runApp(
         FloodSafeApp(
           repository: api,
