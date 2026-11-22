@@ -2,6 +2,12 @@
 
 Issue #6 · Design baseline: 9 November 2026.
 
+**22 November implementation update:** The controlled alert prototype now creates
+a subset of these planned entities in private `floodsafe_alerting`. See the
+[current migration notes](../supabase/README.md#22-november-alert-prototype) and
+[demo guide](ALERT_DEMO.md). Remaining planned entities below retain their design
+status; the original baseline is preserved for traceability.
+
 This document defines the implemented application/worker records and the logical
 design for remaining features. **Proposed tables below are not created or deployed.**
 Their implementation belongs to #10, #14, #15 and #17–#19. Existing SQL migrations

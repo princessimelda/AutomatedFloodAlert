@@ -2,6 +2,18 @@
 
 Final-year project investigating flood-related risk in Nairobi and developing the FloodSafe application.
 
+## Student prototype — 22 November 2026
+
+The alert increment adds authenticated test-event ingestion, independent approval,
+publication, a Flutter online inbox, Supabase-verified read acknowledgements and a
+durable Twilio SMS outbox. Alerts are always labelled TEST. The online approval/
+publication flow was verified against the development database; real SMS handset
+delivery still requires provider setup and an explicit test.
+
+See the [25 November completion plan](documentation/COMPLETION_PLAN.md) for the
+supervisor-specification mapping and the [two-channel demo guide](documentation/ALERT_DEMO.md)
+for setup, roles, live-SMS gates and reproduction.
+
 ## Repository contents
 
 | Path | Purpose |
@@ -19,7 +31,7 @@ Datasets, research documents, local environments, and generated application buil
 
 The models remain experimental. The Flutter app can use a local API backed by PostgreSQL/PostGIS for published places, timestamped risk summaries and advisories. Current seeds and fixtures are explicitly labelled demonstration data, not live predictions. The local API connection to the hosted Supabase development database was verified on 2026-10-28; automated destructive database tests remain isolated locally.
 
-See the [backend setup](backend/README.md) and [database design](supabase/README.md) for the connected development flow. No paid services are required for local development.
+See the [backend setup](backend/README.md) and [database design](supabase/README.md) for the connected development flow. Local development and mocked SMS tests do not require a paid provider. Actual handset SMS requires an eligible live sending account.
 
 [Download the FloodSafe Android APK](https://github.com/princessimelda/AutomatedFloodAlert/raw/refs/heads/main/floodsafe/downloads/FloodSafe-0.1.0.apk).
 
