@@ -1,4 +1,6 @@
-from contextlib import asynccontextmanager
+import asyncio
+import logging
+from contextlib import asynccontextmanager, suppress
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, Path, Query, Request
@@ -7,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
+from .alert_routes import alert_router
+from .alert_store import AlertConflict, AlertMissing, AlertStore
 from .config import Settings
 from .models import (
     Advisory,
@@ -17,6 +21,7 @@ from .models import (
     DashboardRequest,
     Place,
 )
+from .notification_worker import dispatch_once
 from .repositories import (
     AnswerUnavailable,
     DatabaseUnavailable,
@@ -34,18 +39,38 @@ def create_app(settings: Settings | None = None, repository: Repository | None =
     store = repository or (
         FixtureRepository() if settings.data_mode == "fixtures" else PostgresRepository(settings)
     )
+    alerts = AlertStore(store, settings)
+
+    async def delivery_loop():
+        while True:
+            try:
+                await asyncio.to_thread(dispatch_once, alerts)
+            except Exception:
+                logging.getLogger(__name__).warning("notification_worker_unavailable")
+            await asyncio.sleep(5)
 
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        store.close()
+        task = (
+            asyncio.create_task(delivery_loop()) if settings.notification_worker_enabled else None
+        )
+        try:
+            yield
+        finally:
+            if task:
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+            store.close()
 
     app = FastAPI(title="FloodSafe public information API", version="0.1.0", lifespan=lifespan)
+    app.state.alert_store = alerts
+    app.include_router(alert_router(settings, alerts))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization", "X-FloodSafe-Key"],
         allow_credentials=False,
     )
 
@@ -54,6 +79,18 @@ def create_app(settings: Settings | None = None, repository: Repository | None =
             status_code=status,
             content=ApiError(code=code, message=message).model_dump(),
         )
+
+    @app.exception_handler(AlertConflict)
+    async def alert_conflict(request, exception):
+        return error(
+            409,
+            "alert_conflict",
+            "The event or alert state changed. Refresh and check the rule, locations and revision.",
+        )
+
+    @app.exception_handler(AlertMissing)
+    async def alert_missing(request, exception):
+        return error(404, "alert_unavailable", "This alert is not available.")
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request, exception):
@@ -105,6 +142,7 @@ def create_app(settings: Settings | None = None, repository: Repository | None =
     @app.get("/readyz")
     def ready():
         store.ping()
+        alerts.ping()
         return {"status": "ready", "data_mode": settings.data_mode}
 
     @app.get("/v1/places", response_model=list[Place])

@@ -113,7 +113,7 @@ def test_migration_and_seed_are_repeatable_without_renewing_dates(db):
     )
 
 
-def test_real_repository_connects_with_reader_role(database_settings):
+def test_real_repository_connects_with_reader_role(database_settings, db):
     repository = PostgresRepository(database_settings)
     try:
         repository.ping()
@@ -125,7 +125,15 @@ def test_real_repository_connects_with_reader_role(database_settings):
             )
             is False
         )
-        assert repository.advisories("kibera", "en", 20)[0].is_demo
+        # Persistent test containers may outlive the seven-day seed. Fetching
+        # it again must not rejuvenate an expired advisory.
+        seeded = db.execute(
+            "SELECT published_at,valid_until FROM public.advisories WHERE id='00000000-0000-4000-8000-000000000010'"
+        ).fetchone()
+        current = seeded["published_at"] <= datetime.now(timezone.utc) < seeded["valid_until"]
+        advisories = repository.advisories("kibera", "en", 20)
+        assert any(a.id == "00000000-0000-4000-8000-000000000010" for a in advisories) == current
+        assert all(a.is_demo for a in advisories)
     finally:
         repository.close()
 
@@ -190,6 +198,10 @@ def test_rollback_and_reapply_in_isolated_database(database_settings):
         **database_settings.connection_kwargs(), row_factory=dict_row
     ) as connection:
         connection.execute(
+            (ROOT / "supabase/rollbacks/202611220001_alert_prototype.sql").read_text(),
+            prepare=False,
+        )
+        connection.execute(
             (ROOT / "supabase/rollbacks/202610280003_saved_place_defaults.sql").read_text(),
             prepare=False,
         )
@@ -198,9 +210,13 @@ def test_rollback_and_reapply_in_isolated_database(database_settings):
             prepare=False,
         )
         connection.execute(
-            "DELETE FROM floodsafe_internal.schema_migrations WHERE version IN ('202610280001_core','202610280003_saved_place_defaults')"
+            "DELETE FROM floodsafe_internal.schema_migrations WHERE version IN ('202610280001_core','202610280003_saved_place_defaults','202611220001_alert_prototype')"
         )
-        assert migrate(connection) == ["202610280001_core", "202610280003_saved_place_defaults"]
+        assert migrate(connection) == [
+            "202610280001_core",
+            "202610280003_saved_place_defaults",
+            "202611220001_alert_prototype",
+        ]
         seed(connection)
 
 
