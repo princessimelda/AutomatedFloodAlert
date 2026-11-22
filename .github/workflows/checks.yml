@@ -1,13 +1,18 @@
 name: Project checks
 on:
   pull_request:
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['**']
 permissions:
   contents: read
+concurrency:
+  group: checks-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgis/postgis:17-3.5
@@ -48,6 +53,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_weather_worker.py' -v
   flutter:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: floodsafe
@@ -63,8 +69,15 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build web --no-web-resources-cdn --dart-define=FLOODSAFE_API_URL=http://127.0.0.1:8000
+      - name: Save test web build for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-web-test-build
+          path: floodsafe/build/web
+          retention-days: 3
   station-research:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

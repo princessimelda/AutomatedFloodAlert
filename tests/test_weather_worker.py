@@ -2,10 +2,13 @@
 
 import copy
 import hashlib
+import io
+import json
 import os
 import tempfile
 import unittest
 import uuid
+from contextlib import redirect_stdout
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
@@ -21,6 +24,52 @@ from scripts.weather_worker.bundle import load_bundle, predict
 from scripts.weather_worker.contract import InferenceContractError, infer_current
 from scripts.weather_worker.store import PostgresStore
 from scripts.weather_worker.worker import run_worker
+
+
+class WorkerCliTests(unittest.TestCase):
+    def test_failed_cli_writes_safe_summary_without_exception_details(self):
+        from scripts.weather_worker.__main__ import main
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "result.json"
+            log = io.StringIO()
+            with (
+                patch("sys.argv", ["worker", "run", "--result-file", str(output)]),
+                patch(
+                    "scripts.weather_worker.__main__.load_bundle",
+                    side_effect=ValueError("private-password-must-not-escape"),
+                ),
+                redirect_stdout(log),
+                self.assertRaises(SystemExit) as stopped,
+            ):
+                main()
+            self.assertEqual(stopped.exception.code, 1)
+            self.assertEqual(
+                json.loads(output.read_text()),
+                {"status": "failed", "error_code": "ValueError"},
+            )
+            self.assertNotIn("private-password", log.getvalue())
+
+    def test_incomplete_summary_is_retained_with_nonzero_exit(self):
+        from scripts.weather_worker.__main__ import main
+
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "result.json"
+            with (
+                patch("sys.argv", ["worker", "run", "--result-file", str(output)]),
+                patch("scripts.weather_worker.__main__.load_bundle", return_value={}),
+                patch("scripts.weather_worker.__main__.db_config", return_value={}),
+                patch("scripts.weather_worker.__main__.psycopg.connect"),
+                patch(
+                    "scripts.weather_worker.__main__.run_worker",
+                    return_value={"status": "incomplete", "prediction_count": 0},
+                ),
+                redirect_stdout(io.StringIO()),
+                self.assertRaises(SystemExit) as stopped,
+            ):
+                main()
+            self.assertEqual(stopped.exception.code, 2)
+            self.assertEqual(json.loads(output.read_text())["status"], "incomplete")
 
 
 class MemoryStore:

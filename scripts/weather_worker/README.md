@@ -77,6 +77,12 @@ The first invocation in an hour fetches and persists data. Repeating it after su
 
 ## Hosted schedule
 
+The CLI supports `--result-file` for a small credential-free outcome document.
+The workflow uses it to show actual ready/incomplete/failed/busy status in the
+Actions summary, including run ID and safe error code. A green ingestion job is
+not evidence of published alerts or handset delivery. The [22 November audit](../../documentation/COMPLETION_PLAN.md#workflow-audit--22-november)
+records recent provider timeouts and multi-hour scheduling gaps.
+
 `.github/workflows/weather-worker.yml` uses a GitHub-hosted Ubuntu runner, Python 3.13 and the committed model bundle. It runs at **17 minutes past each hour** (also 17 minutes past each hour in Nairobi), supports manual dispatch, and permits execution only from `main`. It has a ten-minute timeout, one-run concurrency and read-only repository permissions.
 
 One repository Actions secret is required:
