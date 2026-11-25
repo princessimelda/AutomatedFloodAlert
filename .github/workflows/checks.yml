@@ -40,6 +40,10 @@ jobs:
         run: psql -h 127.0.0.1 -p 55432 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql
       - run: ruff check backend/app backend/tests
       - run: ruff format --check backend/app backend/tests
+      - name: Verify hosted frontend configuration boundaries
+        run: python -m unittest discover -s tests -p 'test_render_configuration.py' -v
+      - run: ruff check scripts/build_render_web.py tests/test_render_configuration.py
+      - run: ruff format --check scripts/build_render_web.py tests/test_render_configuration.py
       - name: Test API, migrations, RLS and spatial lookups
         working-directory: backend
         env:

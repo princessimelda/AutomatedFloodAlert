@@ -2,17 +2,21 @@
 
 Final-year project investigating flood-related risk in Nairobi and developing the FloodSafe application.
 
-## Student prototype — 22 November 2026
+## Student prototype — 25 November 2026
 
 The alert increment adds authenticated test-event ingestion, independent approval,
 publication, a Flutter online inbox, Supabase-verified read acknowledgements and a
-durable Twilio SMS outbox. Alerts are always labelled TEST. The online approval/
-publication flow was verified against the development database; real SMS handset
-delivery still requires provider setup and an explicit test.
+durable notification audit. Alerts are always labelled TEST. The online approval/
+publication flow was verified against the development database. The agreed release
+uses Supabase email authentication and in-app alerts. SMS is deferred because of
+provider costs; its optional implementation remains disabled and is not a release
+requirement. The inbox refreshes while open; background push is not implemented.
 
 See the [25 November completion plan](documentation/COMPLETION_PLAN.md) for the
-supervisor-specification mapping and the [two-channel demo guide](documentation/ALERT_DEMO.md)
-for setup, roles, live-SMS gates and reproduction.
+supervisor-specification mapping, the [alert demo guide](documentation/ALERT_DEMO.md)
+for setup and roles, and the [Render deployment guide](documentation/RENDER_DEPLOYMENT.md)
+for public hosting. Deployment preparation does not establish that a public site
+is already running.
 
 ## Repository contents
 
