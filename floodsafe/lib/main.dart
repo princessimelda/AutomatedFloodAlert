@@ -67,7 +67,7 @@ Future<void> main() async {
             body: SafeArea(
               child: Center(
                 child: Text(
-                  'Invalid API configuration. Use HTTPS, or localhost for development.',
+                  'FloodSafe could not start. Please try again later.',
                 ),
               ),
             ),

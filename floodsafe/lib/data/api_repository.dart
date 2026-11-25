@@ -184,7 +184,10 @@ class ApiRepository
       placeId: _string(json, 'place_id'),
       source: _string(json, 'source'),
       isDemo: _bool(json, 'is_demo'),
-      assessment: assessment,
+      // Seeded scenarios must not become public statements about local risk.
+      // Preserve provenance in the contract, but show an unavailable state
+      // until a real published assessment exists.
+      assessment: _bool(json, 'is_demo') ? null : assessment,
     );
   }
 

@@ -277,9 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.connectedToApi
-                  ? 'Development API · Check source and validity'
-                  : 'Demo · No live flood alerts',
+              'Flood information for your area',
               style: const TextStyle(color: muted, height: 1.5),
             ),
             const SizedBox(height: 20),
@@ -299,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(_nextStep, style: const TextStyle(height: 1.5)),
                   const SizedBox(height: 10),
                   const Text(
-                    'General guidance, not a location-specific evacuation instruction.',
+                    'For your household preparedness. Follow local instructions during an emergency.',
                     style: TextStyle(color: muted, height: 1.5),
                   ),
                 ],
@@ -333,10 +331,8 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             place?.latitude != null
-                ? 'Coordinates: ${place!.latitude!.toStringAsFixed(4)}, ${place.longitude!.toStringAsFixed(4)} · Accuracy about ${place.accuracyMeters!.round()} m. Captured ${_time(place.recordedAt!)}. ${widget.connectedToApi ? 'Sent for this check; not stored or tracked in the background.' : 'Not tracked in the background or uploaded.'}'
-                : widget.connectedToApi
-                ? 'Location is optional. If you use GPS, coordinates are sent to the API for this check only, not stored.'
-                : 'Location is optional. Used once; not saved or uploaded.',
+                ? 'Location found, accurate to about ${place!.accuracyMeters!.round()} m. Used for this check only; not saved or tracked.'
+                : 'Location is optional. Used once; not saved or tracked.',
             style: const TextStyle(color: muted, height: 1.5),
           ),
           const SizedBox(height: 14),
@@ -457,36 +453,34 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
           Text(switch (status) {
-            DashboardStatus.choosePlace => 'No location is assumed. Preparedness steps are available without GPS or sign-in.',
+            DashboardStatus.choosePlace => 'Choose your area to check available updates. You can read preparedness steps without sharing your location or signing in.',
             DashboardStatus.loading =>
-              'Previous place information is hidden while this place loads.',
+              'Looking for the latest update for your area.',
             DashboardStatus.error => 'We could not retrieve an assessment. This does not mean the area is at low risk.',
             DashboardStatus.unavailable => 'No current assessment is available for this place. Missing information does not mean low risk.',
-            DashboardStatus.stale => 'The last assessment is outside its validity period. Do not use it as current risk information.',
+            DashboardStatus.stale => 'The previous update has expired. A new update is needed to describe current conditions.',
             DashboardStatus.ready =>
               data!.isDemo
-                  ? 'This is a test scenario, not a prediction or an alert for ${_dashboard.place!.name}.'
-                  : 'Read the source and validity below before using this assessment.',
+                  ? 'This example shows how an update would look. It does not describe current conditions in ${_dashboard.place!.name}.'
+                  : 'This update covers ${_dashboard.place!.name}. Check when it was updated below.',
           }, style: const TextStyle(height: 1.5)),
-          if (data != null) ...[
+          if (data != null && assessment != null) ...[
             const SizedBox(height: 14),
             Text(
               'Source: ${data.source}',
               style: const TextStyle(color: muted, height: 1.5),
             ),
-            if (assessment != null) ...[
-              Text(
-                'Issued: ${_time(assessment.issuedAt)}',
-                style: const TextStyle(color: muted, height: 1.5),
-              ),
-              Text(
-                'Valid until: ${_time(assessment.validUntil)}',
-                style: const TextStyle(color: muted, height: 1.5),
-              ),
-            ],
+            Text(
+              'Updated: ${_time(assessment.issuedAt)}',
+              style: const TextStyle(color: muted, height: 1.5),
+            ),
+            Text(
+              'Valid until: ${_time(assessment.validUntil)}',
+              style: const TextStyle(color: muted, height: 1.5),
+            ),
             if (data.isDemo)
               const Text(
-                'TEST DATA · Not live conditions',
+                'Example only · Not current conditions',
                 style: TextStyle(
                   color: navy,
                   fontWeight: FontWeight.w700,
@@ -607,11 +601,7 @@ class _LocationPickerState extends State<LocationPicker> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.connectedToApi
-                  ? 'Choose a supported place. Test scenarios are labelled; they are not current flood reports.'
-                  : 'Sample Nairobi neighbourhoods · test data only. These are not current flood reports.',
-            ),
+            const Text('Choose the area you want to check.'),
             const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(
@@ -656,22 +646,14 @@ class _LocationPickerState extends State<LocationPicker> {
                     if (places.isEmpty)
                       Semantics(
                         liveRegion: true,
-                        child: Text(
-                          widget.connectedToApi
-                              ? 'No matching places are available.'
-                              : 'No matching sample places. Try Kibera or Westlands.',
-                        ),
+                        child: const Text('No matching places are available.'),
                       ),
                     ...places.map(
                       (place) => ListTile(
                         minVerticalPadding: 14,
                         contentPadding: EdgeInsets.zero,
                         title: Text(place.name),
-                        subtitle: Text(
-                          place.isDemo
-                              ? 'Nairobi · sample scenario'
-                              : 'Nairobi · published place',
-                        ),
+                        subtitle: const Text('Nairobi'),
                         selected: place.id == widget.current,
                         trailing: Icon(
                           place.id == widget.current
