@@ -50,6 +50,11 @@ void main() {
   }
 
   Future<void> tapText(WidgetTester tester, String text) async {
+    if (find.text(text).evaluate().isEmpty &&
+        find.byTooltip('Open navigation menu').evaluate().isNotEmpty) {
+      await tester.tap(find.byTooltip('Open navigation menu'));
+      await tester.pumpAndSettle();
+    }
     final target = find.text(text).first;
     await tester.ensureVisible(target);
     await tester.pumpAndSettle();
@@ -74,16 +79,24 @@ void main() {
     expect(
       tester.getBottomRight(find.byKey(const Key('risk-status'))).dy,
       lessThan(tester.getTopLeft(find.byKey(const Key('read-guidance'))).dy),
-      reason: 'The situation must be visible above the persistent action.',
+      reason: 'The situation precedes the preparedness action.',
     );
+    expect(find.byKey(const Key('home-intro')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('read-guidance')));
+    await tester.pumpAndSettle();
     expect(
       find.byKey(const Key('read-guidance')).hitTestable(),
       findsOneWidget,
     );
     expect(find.text('Sample high risk'), findsNothing);
     await tapText(tester, 'Read preparedness steps');
-    expect(find.text('1. Avoid floodwater'), findsOneWidget);
     expect(find.text('Preparedness steps'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('1. Avoid floodwater'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('1. Avoid floodwater'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -118,6 +131,11 @@ void main() {
     expect(find.text('Westlands'), findsOneWidget);
     expect(find.textContaining('permission was not granted'), findsNothing);
     await tapText(tester, 'Read preparedness steps');
+    await tester.scrollUntilVisible(
+      find.text('1. Avoid floodwater'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('1. Avoid floodwater'), findsOneWidget);
   });
 

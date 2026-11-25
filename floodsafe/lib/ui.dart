@@ -1,21 +1,25 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-const blue = Color(0xFF125DD8);
-const navy = Color(0xFF123D70);
-const ink = Color(0xFF152C46);
-const muted = Color(0xFF506278);
-const paper = Color(0xFFF5F8FD);
-const line = Color(0xFFE0E8F2);
+const blue = Color(0xFF087F8C);
+const navy = Color(0xFF163B46);
+const ink = Color(0xFF334155);
+const muted = Color(0xFF52646D);
+const paper = Color(0xFFF7F8F4);
+const accent = Color(0xFFDCECE9);
+const line = Color(0xFFD8E3DF);
 const red = Color(0xFFB42336);
 const green = Color(0xFF178567);
 
 TextStyle titleStyle(double size) => TextStyle(
-  fontFamily: 'Lora',
+  fontFamily: 'Georgia Pro',
+  fontFamilyFallback: const ['Georgia', 'Lora', 'serif'],
   fontSize: size,
   fontWeight: FontWeight.w700,
-  color: ink,
+  color: navy,
   height: 1.15,
   letterSpacing: -.6,
 );
@@ -24,86 +28,100 @@ class Brand extends StatelessWidget {
   const Brand({super.key, this.large = false, this.tagline = true});
   final bool large, tagline;
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
-    constraints: BoxConstraints(maxWidth: large ? 310 : 185),
-    child: FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: large ? 64 : 43,
-            height: large ? 70 : 48,
-            child: CustomPaint(painter: BrandPainter()),
-          ),
-          SizedBox(width: large ? 14 : 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'FloodSafe',
-                style: titleStyle(large ? 36 : 25).copyWith(color: navy),
-              ),
-              if (tagline)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    'Stay informed. Stay safe.',
-                    style: TextStyle(fontSize: large ? 13 : 10, color: muted),
-                  ),
-                ),
-            ],
-          ),
-        ],
+  Widget build(BuildContext context) => Semantics(
+    label: 'FloodSafe',
+    image: true,
+    child: SizedBox(
+      width: large ? 310 : 185,
+      height: large ? 96 : 56,
+      child: const CroppedAsset(
+        asset: 'assets/images/floodsafe-brand.png',
+        // Display the supplied mark without its surrounding blank canvas.
+        source: Rect.fromLTRB(.055, .35, .985, .65),
       ),
     ),
   );
 }
 
-class BrandPainter extends CustomPainter {
+/// Crop only at paint time: retain the original supplied image unchanged.
+class CroppedAsset extends StatefulWidget {
+  const CroppedAsset({
+    super.key,
+    required this.asset,
+    required this.source,
+    this.fit = BoxFit.contain,
+  });
+  final String asset;
+  final Rect source;
+  final BoxFit fit;
   @override
-  void paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.scale(size.width / 64, size.height / 70);
-    final drop = Path()
-      ..moveTo(34, 1)
-      ..cubicTo(29, 1, 13, 26, 13, 34)
-      ..cubicTo(13, 51, 52, 51, 52, 34)
-      ..cubicTo(52, 25, 38, 1, 34, 1);
-    canvas.drawPath(
-      drop,
-      Paint()
-        ..shader = const LinearGradient(colors: [Color(0xFF338DFF), blue])
-            .createShader(const Rect.fromLTWH(10, 0, 45, 50)),
-    );
-    canvas.drawPath(
-      Path()
-        ..moveTo(23, 35)
-        ..lineTo(30, 40)
-        ..lineTo(42, 22),
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..strokeWidth = 5,
-    );
-    for (var i = 0; i < 2; i++) {
-      final y = 47.0 + i * 12;
-      canvas.drawPath(
-        Path()
-          ..moveTo(0, y + 9)
-          ..cubicTo(21, y - 17, 37, y + 20, 64, y - 5)
-          ..cubicTo(51, y + 28, 23, y - 2, 0, y + 9),
-        Paint()..color = i == 0 ? navy : const Color(0xFF5AA8EA),
-      );
+  State<CroppedAsset> createState() => _CroppedAssetState();
+}
+
+class _CroppedAssetState extends State<CroppedAsset> {
+  ui.Image? _image;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final bytes = await rootBundle.load(widget.asset);
+      final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
+      final frame = await codec.getNextFrame();
+      codec.dispose();
+      if (mounted) {
+        setState(() => _image = frame.image);
+      } else {
+        frame.image.dispose();
+      }
+    } catch (_) {
+      /* Decorative assets must not block the app. */
     }
-    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  void dispose() {
+    _image?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    painter: _AssetPainter(_image, widget.source, widget.fit),
+    size: Size.infinite,
+  );
+}
+
+class _AssetPainter extends CustomPainter {
+  _AssetPainter(this.image, this.crop, this.fit);
+  final ui.Image? image;
+  final Rect crop;
+  final BoxFit fit;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final image = this.image;
+    if (image == null) return;
+    final source = Rect.fromLTRB(
+      crop.left * image.width,
+      crop.top * image.height,
+      crop.right * image.width,
+      crop.bottom * image.height,
+    );
+    final fitted = applyBoxFit(fit, source.size, size);
+    canvas.drawImageRect(
+      image,
+      Alignment.center.inscribe(fitted.source, source),
+      Alignment.center.inscribe(fitted.destination, Offset.zero & size),
+      Paint()..filterQuality = FilterQuality.medium,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _AssetPainter old) =>
+      image != old.image || crop != old.crop || fit != old.fit;
 }
 
 class DemoBadge extends StatelessWidget {
@@ -113,7 +131,7 @@ class DemoBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: const Color(0xFFECF3FF),
+      color: accent,
       borderRadius: BorderRadius.circular(7),
     ),
     child: Text(
@@ -147,13 +165,13 @@ class Surface extends StatelessWidget {
       border: Border.all(color: line),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x060E3F77),
+          color: Color(0x0C163B46),
           blurRadius: 18,
           offset: Offset(0, 5),
         ),
       ],
     ),
-    child: child,
+    child: Material(type: MaterialType.transparency, child: child),
   );
 }
 

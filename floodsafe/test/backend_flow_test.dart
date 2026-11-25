@@ -46,11 +46,11 @@ void main() {
                 'id': 'practice',
                 'place_id': 'mathare',
                 'language': 'en',
-                'title': 'Household practice advisory',
-                'body': 'This is a test advisory.',
+                'title': 'Household preparedness advisory',
+                'body': 'Review your household plan.',
                 'source': 'Test source',
                 'source_url': 'https://example.com/guidance',
-                'is_demo': true,
+                'is_demo': false,
                 'published_at': now
                     .subtract(const Duration(hours: 1))
                     .toIso8601String(),
@@ -81,14 +81,14 @@ void main() {
       expect(find.textContaining('sent to the API'), findsNothing);
       await tap(tester, 'Read preparedness steps');
       await tester.scrollUntilVisible(
-        find.text('Household practice advisory'),
+        find.text('Household preparedness advisory'),
         150,
-        scrollable: find.byType(Scrollable).last,
+        scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('Household practice advisory'), findsOneWidget);
+      expect(find.text('Household preparedness advisory'), findsOneWidget);
       expect(
         find.text('TEST ADVISORY · Not an evacuation instruction'),
-        findsOneWidget,
+        findsNothing,
       );
       expect(tester.takeException(), isNull);
     },
@@ -171,6 +171,8 @@ void main() {
       await tap(tester, 'Retry places');
       expect(find.text('No matching places are available.'), findsOneWidget);
       await tap(tester, 'Cancel');
+      await tester.ensureVisible(find.byKey(const Key('read-guidance')));
+      await tester.pumpAndSettle();
       expect(
         find.byKey(const Key('read-guidance')).hitTestable(),
         findsOneWidget,

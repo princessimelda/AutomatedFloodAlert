@@ -130,6 +130,9 @@ void main() {
         find.text('The current risk scenarios are test data.'),
         findsOneWidget,
       );
+      expect(find.textContaining('Source: FloodSafe notes'), findsNothing);
+      await tester.tap(find.text('Source and review details'));
+      await tester.pumpAndSettle();
       expect(find.textContaining('Source: FloodSafe notes'), findsOneWidget);
       expect(find.textContaining('Content checked:'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -143,7 +146,7 @@ void main() {
     await ask(tester);
     await ask(tester);
     expect(repository.calls, 1);
-    expect(find.text('Retrieving the published answer…'), findsOneWidget);
+    expect(find.text('Loading answer…'), findsOneWidget);
     repository.pending!.complete(makeAnswer());
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('guided-answer')), findsOneWidget);

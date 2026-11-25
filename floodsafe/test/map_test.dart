@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,6 +10,19 @@ import 'package:floodsafe/data/content_repository.dart';
 import 'package:floodsafe/location/location_service.dart';
 import 'package:floodsafe/maps/map_locations.dart';
 import 'package:floodsafe/maps/map_screen.dart';
+import 'package:floodsafe/maps/route_repository.dart';
+import 'package:latlong2/latlong.dart';
+
+class PendingRoutes implements RouteRepository {
+  final result = Completer<WalkingRoute>();
+  @override
+  Future<WalkingRoute> findRoute({
+    required LatLng origin,
+    LatLng? destination,
+    required bool avoidSteps,
+    required List<LatLng> blocked,
+  }) => result.future;
+}
 
 class OfflineTiles extends TileProvider {
   @override
@@ -57,7 +71,7 @@ Future<void> reveal(
   Finder finder, {
   double step = 180,
 }) async {
-  for (var i = 0; i < 20 && finder.evaluate().isEmpty; i++) {
+  for (var i = 0; i < 80 && finder.evaluate().isEmpty; i++) {
     final position = tester
         .state<ScrollableState>(find.byType(Scrollable).first)
         .position;
@@ -71,6 +85,42 @@ Future<void> reveal(
 }
 
 void main() {
+  testWidgets('Changing start discards a late route response', (tester) async {
+    final routes = PendingRoutes();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MapScreen(
+          selected: samplePlaces.first,
+          routes: routes,
+          content: const FixtureContentRepository(),
+          locationService: TestLocation(),
+          tileProvider: OfflineTiles(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final search = find.text('Find nearest mapped assembly point');
+    await reveal(tester, search);
+    await tester.tap(search);
+    await tester.pump();
+    // Change the start while the first search is still in flight.
+    await tester.ensureVisible(find.text('Choose start on map'));
+    await tester.pump();
+    await tester.tap(find.text('Choose start on map'));
+    await tester.pump();
+    routes.result.complete(
+      WalkingRoute(
+        status: 'found',
+        message: 'Old route must be discarded',
+        points: const [LatLng(-1.3, 36.8), LatLng(-1.301, 36.8)],
+        validUntil: DateTime.now().toUtc().add(const Duration(minutes: 5)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Old route must be discarded'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   test('Known centres and GPS points remain distinct', () {
     expect(mapPosition(samplePlaces.first), neighbourhoodCentres['kibera']);
     expect(mapPosition(const Place(id: 'unknown', name: 'Unknown')), isNull);
@@ -143,10 +193,9 @@ void main() {
     await tester.pumpAndSettle();
     await reveal(tester, find.text('View information on Home'), step: -150);
     expect(find.text('Approximate neighbourhood centre'), findsOneWidget);
-    expect(
-      find.text('TEST SCENARIO · Not current flood conditions'),
-      findsOneWidget,
-    );
+    expect(find.text('No current flood update for this area.'), findsOneWidget);
+    expect(find.textContaining('TEST SCENARIO'), findsNothing);
+    expect(find.textContaining('Sample assessment'), findsNothing);
     expect(tester.takeException(), isNull);
   });
   testWidgets('GPS position includes accuracy and creates a circle', (

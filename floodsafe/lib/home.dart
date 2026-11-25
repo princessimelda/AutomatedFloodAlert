@@ -14,6 +14,10 @@ import 'data/content_repository.dart';
 import 'assistant/assistant_repository.dart';
 import 'alerts/alert_repository.dart';
 import 'alerts/alert_inbox.dart';
+import 'site_widgets.dart';
+import 'emergency_help.dart';
+import 'seasonal_advisory.dart';
+import 'maps/route_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -158,17 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openGuidance() {
-    Navigator.push<void>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PreparednessScreen(
-          repository: widget.connectedToApi ? _content : null,
-          place: _dashboard.place,
-        ),
-      ),
-    );
-  }
+  void _openGuidance() => setState(() => _tab = 3);
 
   Future<void> _profile() async {
     _defaultRequest++;
@@ -192,46 +186,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Brand(tagline: false),
-      backgroundColor: Colors.white,
-      actions: [
-        IconButton(
-          onPressed: _profile,
-          tooltip: 'Your profile and sign-in options',
-          icon: const Icon(Icons.person_outline),
-        ),
-        const SizedBox(width: 8),
-      ],
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: SiteNavigation(
+        selected: _tab,
+        onSelect: (tab) => setState(() => _tab = tab),
+        onAccount: _profile,
+      ),
     ),
     body: SafeArea(
       child: switch (_tab) {
-        0 => Column(
-          children: [
-            Expanded(child: _home()),
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 860),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      key: const Key('read-guidance'),
-                      onPressed: _openGuidance,
-                      icon: const Icon(Icons.menu_book_outlined),
-                      label: const Text(
-                        'Read preparedness steps',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        0 => _home(),
         1 => AlertInbox(
           repository: widget.repository is AlertRepository
               ? widget.repository as AlertRepository
@@ -242,48 +207,65 @@ class _HomeScreenState extends State<HomeScreen> {
               ? _dashboard.place?.id
               : null,
         ),
-        _ => AssistantScreen(
+        2 => MapScreen(
+          routes: widget.repository is RouteRepository
+              ? widget.repository as RouteRepository
+              : null,
+          selected: _dashboard.place,
+          content: _content,
+          locationService: _locationService,
+          account: widget.accountRepository,
+          embedded: true,
+          onPlaceSelected: (place) async {
+            setState(() => _tab = 0);
+            await _dashboard.selectPlace(place);
+          },
+        ),
+        3 => PreparednessScreen(
+          repository: widget.connectedToApi ? _content : null,
+          place: _dashboard.place,
+          embedded: true,
+        ),
+        4 => AssistantScreen(
           repository:
               widget.assistantRepository ?? const EmptyAssistantRepository(),
         ),
+        _ => const EmergencyHelp(),
       },
-    ),
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: _tab,
-      onDestinationSelected: (tab) => setState(() => _tab = tab),
-      backgroundColor: Colors.white,
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.notifications_outlined),
-          label: 'Alerts',
-        ),
-        NavigationDestination(icon: Icon(Icons.help_outline), label: 'Help'),
-      ],
     ),
   );
 
   Widget _home() => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 900),
+      constraints: const BoxConstraints(maxWidth: 1240),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Flood information for your area',
-              style: const TextStyle(color: muted, height: 1.5),
-            ),
+            IntroSection(onMap: _openMap, onPrepare: _openGuidance),
+            const SizedBox(height: 32),
+            Text('Your area at a glance', style: titleStyle(30)),
             const SizedBox(height: 20),
-            _placeCard(),
-            const SizedBox(height: 16),
-            _situationCard(),
+            LayoutBuilder(
+              builder: (context, constraints) => constraints.maxWidth >= 900
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _placeCard()),
+                        const SizedBox(width: 20),
+                        Expanded(child: _situationCard()),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        _placeCard(),
+                        const SizedBox(height: 16),
+                        _situationCard(),
+                      ],
+                    ),
+            ),
             const SizedBox(height: 16),
             Surface(
               child: Column(
@@ -304,6 +286,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            FilledButton.icon(
+              key: const Key('read-guidance'),
+              onPressed: _openGuidance,
+              icon: const Icon(Icons.menu_book_outlined),
+              label: const Text('Read preparedness steps'),
+            ),
+            const SizedBox(height: 20),
             _mapPreview(),
             const SizedBox(height: 16),
           ],
@@ -523,19 +512,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _locating = false;
       _locationError = null;
+      _tab = 2;
     });
-    final place = await Navigator.push<Place>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MapScreen(
-          selected: _dashboard.place,
-          content: _content,
-          locationService: _locationService,
-          account: widget.accountRepository,
-        ),
-      ),
-    );
-    if (mounted && place != null) await _dashboard.selectPlace(place);
   }
 
   Widget _mapPreview() => Surface(
@@ -681,12 +659,18 @@ class _LocationPickerState extends State<LocationPicker> {
 }
 
 class PreparednessScreen extends StatelessWidget {
-  const PreparednessScreen({super.key, this.repository, this.place});
+  const PreparednessScreen({
+    super.key,
+    this.repository,
+    this.place,
+    this.embedded = false,
+  });
   final ContentRepository? repository;
   final Place? place;
+  final bool embedded;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Preparedness steps')),
+    appBar: embedded ? null : AppBar(title: const Text('Preparedness steps')),
     body: SafeArea(
       child: Align(
         alignment: Alignment.topCenter,
@@ -697,17 +681,15 @@ class PreparednessScreen extends StatelessWidget {
             children: [
               Semantics(
                 header: true,
-                child: Text(
-                  'Plan before you need to act',
-                  style: titleStyle(28),
-                ),
+                child: Text('Preparedness steps', style: titleStyle(28)),
               ),
               const SizedBox(height: 16),
               const Text(
-                'General preparedness information. This app does not currently provide verified local alerts, evacuation destinations, or navigation.',
+                'Plan before you need to act. These steps help you prepare; follow local instructions during an emergency.',
                 style: TextStyle(height: 1.6),
               ),
               const SizedBox(height: 20),
+              if (repository == null) const SeasonalAdvisory(),
               if (repository != null)
                 PublishedAdvisories(repository: repository!, place: place),
               ...const [
@@ -742,7 +724,7 @@ class PreparednessScreen extends StatelessWidget {
                 ),
               ),
               const SelectableText(
-                'Source: CDC — Preparing for Floods\nhttps://www.cdc.gov/floods/safety/\nGeneral guidance adapted for this prototype; not a Nairobi emergency bulletin.',
+                'Sources\nKMSA — NCOF13 technical statement, issued 26 August 2026 (pages 1–4). Seasonal outlook for October–December 2026.\nhttps://meteo.go.ke/our-products/seasonal-forecast/october-november-decemberond-national-climate-outlook-forum-ncof13/\n\nCDC — Preparing for Floods\nhttps://www.cdc.gov/floods/safety/',
                 style: TextStyle(color: muted, height: 1.6),
               ),
             ],
@@ -814,6 +796,8 @@ class _PublishedAdvisoriesState extends State<PublishedAdvisories> {
         child: Text('Published advisories', style: titleStyle(23)),
       ),
       const SizedBox(height: 12),
+      const SeasonalAdvisory(),
+      const SizedBox(height: 16),
       FutureBuilder<List<Advisory>>(
         future: _advisories,
         builder: (context, snapshot) {
@@ -826,9 +810,7 @@ class _PublishedAdvisoriesState extends State<PublishedAdvisories> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Could not update advisories. This does not confirm that your area is at low risk.',
-                ),
+                const Text('Local advisories could not be loaded. Try again.'),
                 TextButton(
                   onPressed: () => setState(_reload),
                   child: const Text('Retry advisories'),
@@ -837,11 +819,11 @@ class _PublishedAdvisoriesState extends State<PublishedAdvisories> {
             );
           }
           final current = (snapshot.data ?? []).where(
-            (item) => item.current(DateTime.now().toUtc()),
+            (item) => !item.isDemo && item.current(DateTime.now().toUtc()),
           );
           if (current.isEmpty) {
             return const Text(
-              'No current published advisories are available here. Read general guidance below.',
+              'No additional local advisories are available right now.',
             );
           }
           return Column(

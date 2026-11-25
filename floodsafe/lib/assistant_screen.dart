@@ -149,7 +149,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Choose a question. Answers come from FloodSafe’s published knowledge base, not generated AI. This guide explains the app; it cannot confirm current flood conditions.',
+            'Choose a question for practical help.',
             style: TextStyle(height: 1.6),
           ),
           const SizedBox(height: 20),
@@ -169,13 +169,13 @@ class _AssistantScreenState extends State<AssistantScreen> {
                   if (_answerLoading)
                     Semantics(
                       liveRegion: true,
-                      child: const Text('Retrieving the published answer…'),
+                      child: const Text('Loading answer…'),
                     ),
                   if (_answerError) ...[
                     Semantics(
                       liveRegion: true,
                       child: const Text(
-                        'This answer could not be retrieved or is no longer available. No replacement answer has been generated.',
+                        'We could not load this answer. Please try again.',
                       ),
                     ),
                     TextButton(
@@ -197,14 +197,20 @@ class _AssistantScreenState extends State<AssistantScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SelectableText(
-                      'Source: ${_answer!.source}\n${_answer!.sourceUrl}',
-                      style: const TextStyle(color: muted, height: 1.5),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Content checked: ${_date(_answer!.reviewedAt)}\nReview due: ${_date(_answer!.validUntil)}',
-                      style: const TextStyle(color: muted, height: 1.5),
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      title: const Text('Source and review details'),
+                      children: [
+                        SelectableText(
+                          'Source: ${_answer!.source}\n${_answer!.sourceUrl}',
+                          style: const TextStyle(color: muted, height: 1.5),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Content checked: ${_date(_answer!.reviewedAt)}\nReview due: ${_date(_answer!.validUntil)}',
+                          style: const TextStyle(color: muted, height: 1.5),
+                        ),
+                      ],
                     ),
                   ],
                 ],
@@ -234,7 +240,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
             ),
           ] else if (!_loading && _questions.isEmpty) ...[
             const Text(
-              'No published questions are available right now. Connect to the backend or refresh later.',
+              'Questions are unavailable right now. Please try again later.',
             ),
             TextButton(
               onPressed: _loadQuestions,
@@ -258,11 +264,6 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Only the listed questions are supported. No chat messages or conversations are saved.',
-            style: TextStyle(color: muted, height: 1.5),
           ),
         ],
       ),
