@@ -93,7 +93,10 @@ void main() {
       await start(tester);
       await choose(tester, 'Kibera');
       expect(find.text('Sample high risk'), findsOneWidget);
-      expect(find.text('TEST DATA · Not live conditions'), findsOneWidget);
+      expect(
+        find.text('Example only · Not current conditions'),
+        findsOneWidget,
+      );
       await choose(tester, 'Westlands');
       expect(find.text('Risk information unavailable'), findsOneWidget);
       expect(find.text('Sample high risk'), findsNothing);
@@ -154,7 +157,7 @@ void main() {
     expect(find.text('Your current location'), findsOneWidget);
     expect(find.text('Risk information unavailable'), findsOneWidget);
     expect(find.text('Sample high risk'), findsNothing);
-    expect(find.textContaining('Accuracy about 20 m'), findsOneWidget);
+    expect(find.textContaining('accurate to about 20 m'), findsOneWidget);
   });
 
   testWidgets(
@@ -186,7 +189,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'not a place');
       await tester.pumpAndSettle();
-      expect(find.textContaining('No matching sample places'), findsOneWidget);
+      expect(find.text('No matching places are available.'), findsOneWidget);
       await tapText(tester, 'Cancel');
       expect(find.text('Kibera'), findsOneWidget);
     },

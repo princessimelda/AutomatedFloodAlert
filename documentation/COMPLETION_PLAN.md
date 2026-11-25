@@ -89,6 +89,23 @@ warning. Existing bounded transport retries are already implemented.
 
 ## Deferred work
 
+### Public dashboard feedback — 25 November
+
+The public Home screen uses citizen-facing wording instead of development/API
+status messages. Location consent explains one-time use without network jargon
+or raw coordinates. Source and update/expiry details accompany an actual
+assessment; absent information does not display internal database descriptions
+or a TEST DATA badge. The connected client excludes seeded demonstration risk
+assessments, preserving an unavailable state until a real published assessment
+exists. Explicit offline developer fixtures remain labelled as examples.
+
+The hosted Open-Meteo ingestion/model worker and the dashboard remain separate:
+the current Home endpoint reads published risk assessments, not the private
+rainfall-prediction view. Connecting those results is still an integration gate;
+wording changes do not establish live prediction display. The rainfall target is
+not calibrated flood probability. The map does not implement optimal evacuation
+routing; #14/#28 require verified destinations, road/hazard inputs and validation.
+
 Further model tuning, calibrated flood labels, verified evacuation routing,
 background location, FCM/email, automatic escalations, full agency-role screens,
 contact administration and complete bilingual UI are not prerequisites for the

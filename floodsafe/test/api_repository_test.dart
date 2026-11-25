@@ -43,7 +43,7 @@ void main() {
       final data = await api.load(samplePlaces.first);
       expect(data.placeId, 'kibera');
       expect(data.isDemo, isTrue);
-      expect(data.assessment!.level, RiskLevel.high);
+      expect(data.assessment, isNull);
     },
   );
 

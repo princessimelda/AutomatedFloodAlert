@@ -29,8 +29,8 @@ void main() {
             ],
             '/v1/dashboard' => {
               'place_id': 'mathare',
-              'source': 'Development database',
-              'is_demo': true,
+              'source': 'Reviewed local update',
+              'is_demo': false,
               'assessment': {
                 'level': 'moderate',
                 'issued_at': now
@@ -76,7 +76,9 @@ void main() {
       await tap(tester, 'Choose a place');
       expect(find.text('Kibera'), findsNothing);
       await tap(tester, 'Mathare');
-      expect(find.text('Sample moderate risk'), findsOneWidget);
+      expect(find.text('moderate risk'), findsOneWidget);
+      expect(find.textContaining('Development API'), findsNothing);
+      expect(find.textContaining('sent to the API'), findsNothing);
       await tap(tester, 'Read preparedness steps');
       await tester.scrollUntilVisible(
         find.text('Household practice advisory'),
@@ -89,6 +91,55 @@ void main() {
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Connected Home excludes sample risk and internal status wording',
+    (tester) async {
+      final now = DateTime.now().toUtc();
+      final api = ApiRepository(
+        baseUrl: 'http://localhost:8000',
+        client: MockClient((request) async {
+          final data = request.url.path == '/v1/places'
+              ? [
+                  {'id': 'mathare', 'name': 'Mathare', 'is_demo': true},
+                ]
+              : {
+                  'place_id': 'mathare',
+                  'source': 'FloodSafe database; seeded scenario',
+                  'is_demo': true,
+                  'assessment': {
+                    'level': 'high',
+                    'issued_at': now
+                        .subtract(const Duration(hours: 1))
+                        .toIso8601String(),
+                    'valid_until': now
+                        .add(const Duration(hours: 1))
+                        .toIso8601String(),
+                  },
+                };
+          return http.Response(jsonEncode(data), 200);
+        }),
+      );
+      addTearDown(api.close);
+      await tester.pumpWidget(
+        FloodSafeApp(
+          repository: api,
+          contentRepository: api,
+          connectedToApi: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, 'Choose a place');
+      await tap(tester, 'Mathare');
+      expect(find.text('Risk information unavailable'), findsOneWidget);
+      expect(find.text('Sample high risk'), findsNothing);
+      expect(find.textContaining('TEST DATA'), findsNothing);
+      expect(find.textContaining('FloodSafe database'), findsNothing);
+      expect(find.textContaining('Development API'), findsNothing);
+      expect(find.textContaining('sent to the API'), findsNothing);
+      expect(find.textContaining('not saved or tracked'), findsOneWidget);
     },
   );
 
