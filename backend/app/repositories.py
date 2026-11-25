@@ -32,6 +32,7 @@ class AnswerUnavailable(Exception):
 
 
 class Repository(Protocol):
+    def route_hazards(self) -> list[dict]: ...
     def assistant_questions(self, language: str) -> list[AssistantQuestion]: ...
     def assistant_answer(self, question_id: str, language: str) -> AssistantAnswer: ...
     def places(self) -> list[Place]: ...
@@ -43,6 +44,10 @@ class Repository(Protocol):
 
 class FixtureRepository:
     """Explicit local mode only. Never an automatic database-outage fallback."""
+
+    def route_hazards(self):
+        # Fixture polygons must never influence a real walking route.
+        return []
 
     def __init__(self):
         now = datetime.now(timezone.utc)
@@ -127,6 +132,22 @@ class FixtureRepository:
 
 
 class PostgresRepository:
+    def route_hazards(self):
+        with self._connection() as connection:
+            rows = connection.execute(
+                """SELECT r.level, r.valid_until,
+                          extensions.ST_AsGeoJSON(g.boundary)::json AS geometry
+                   FROM public.risk_assessments r
+                   JOIN public.susceptibility_grid g ON g.id=r.zone_id
+                   WHERE r.is_published AND g.is_published
+                     AND NOT r.is_demo AND NOT g.is_demo
+                     AND r.issued_at <= now() AND r.valid_until > now()
+                   ORDER BY r.issued_at DESC LIMIT 101"""
+            ).fetchall()
+        if len(rows) > 100:
+            raise DatabaseUnavailable()
+        return rows
+
     def assistant_questions(self, language):
         with self._connection() as connection:
             rows = connection.execute(

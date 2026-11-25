@@ -7,6 +7,9 @@ import '../dashboard/dashboard_data.dart';
 import 'content_repository.dart';
 import '../assistant/assistant_repository.dart';
 import '../alerts/alert_repository.dart';
+import '../maps/route_repository.dart';
+
+import 'package:latlong2/latlong.dart';
 
 class ApiFailure implements Exception {
   const ApiFailure(this.message);
@@ -18,7 +21,8 @@ class ApiRepository
         DashboardRepository,
         ContentRepository,
         AssistantRepository,
-        AlertRepository {
+        AlertRepository,
+        RouteRepository {
   ApiRepository({
     required String baseUrl,
     http.Client? client,
@@ -45,6 +49,94 @@ class ApiRepository
   final Uri _baseUrl;
   final http.Client _client;
   final String? Function()? accessToken;
+
+  @override
+  Future<WalkingRoute> findRoute({
+    required LatLng origin,
+    LatLng? destination,
+    required bool avoidSteps,
+    required List<LatLng> blocked,
+  }) async {
+    Map<String, double> point(LatLng p) => {
+      'latitude': p.latitude,
+      'longitude': p.longitude,
+    };
+    final response = await _client
+        .post(
+          _url('/v1/routes'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'origin': point(origin),
+            if (destination != null) 'destination': point(destination),
+            'avoid_steps': avoidSteps,
+            'blocked_points': blocked.map(point).toList(),
+          }),
+        )
+        .timeout(const Duration(seconds: 40));
+    if (response.statusCode != 200) {
+      throw const ApiFailure(
+        'Route search is unavailable. Try again shortly or contact Emergency Help.',
+      );
+    }
+    final data = _object(jsonDecode(response.body));
+    final status = _string(data, 'status');
+    final until = _date(data, 'valid_until');
+    final generated = _date(data, 'generated_at');
+    final points = _list(data['geometry']).map((item) {
+      final p = _object(item);
+      final lat = p['latitude'], lon = p['longitude'];
+      if (lat is! num ||
+          lon is! num ||
+          !lat.isFinite ||
+          !lon.isFinite ||
+          lat < -1.50 ||
+          lat > -1.10 ||
+          lon < 36.60 ||
+          lon > 37.12) {
+        throw const ApiFailure('Route information is invalid.');
+      }
+      return LatLng(lat.toDouble(), lon.toDouble());
+    }).toList();
+    if (!const [
+          'found',
+          'no_route',
+          'no_assembly_point',
+          'unmapped_start',
+        ].contains(status) ||
+        data['flood_safety'] != 'unverified' ||
+        !until.isAfter(DateTime.now().toUtc()) ||
+        !until.isAfter(generated) ||
+        until.difference(generated) > const Duration(minutes: 10) ||
+        generated.isAfter(
+          DateTime.now().toUtc().add(const Duration(minutes: 1)),
+        ) ||
+        (status == 'found' && points.length < 2)) {
+      throw const ApiFailure(
+        'Route information is unavailable or out of date.',
+      );
+    }
+    int? count(String key) {
+      final value = data[key];
+      if (value == null) return null;
+      if (value is! int || value < 0) {
+        throw const ApiFailure('Route information is invalid.');
+      }
+      return value;
+    }
+
+    return WalkingRoute(
+      status: status,
+      message: _string(data, 'message'),
+      points: points,
+      validUntil: until,
+      destinationName: data['destination_name'] as String?,
+      distanceM: count('distance_m'),
+      minutes: count('walking_minutes'),
+      startGap: count('start_gap_m'),
+      endGap: count('destination_gap_m'),
+      roads: _list(data['roads']).map((r) => r as String).toList(),
+    );
+  }
 
   @override
   Future<List<PublicAlert>> alerts({String? placeId}) async {

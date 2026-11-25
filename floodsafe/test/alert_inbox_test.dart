@@ -119,7 +119,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Practice notification'), findsOneWidget);
-      expect(find.text('TEST · INFORMATION'), findsOneWidget);
+      expect(find.text('Practice alert · INFORMATION'), findsOneWidget);
       expect(find.text('Area: Kibera'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Sign in to acknowledge'), 200);
       expect(find.text('Reference: 10000000'), findsOneWidget);

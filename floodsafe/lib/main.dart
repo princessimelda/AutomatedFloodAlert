@@ -100,11 +100,33 @@ class FloodSafeApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: blue, surface: Colors.white),
+      colorScheme: ColorScheme.fromSeed(seedColor: blue, surface: Colors.white)
+          .copyWith(
+            primary: navy,
+            secondary: blue,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: ink,
+          ),
       scaffoldBackgroundColor: paper,
-      fontFamily: 'Roboto',
-      textTheme: const TextTheme(
-        bodyMedium: TextStyle(color: ink, fontSize: 15, height: 1.5),
+      fontFamily: 'Georgia',
+      fontFamilyFallback: const ['Lora', 'serif'],
+      textTheme: TextTheme(
+        displayLarge: titleStyle(52),
+        displayMedium: titleStyle(42),
+        displaySmall: titleStyle(34),
+        headlineLarge: titleStyle(32),
+        headlineMedium: titleStyle(28),
+        headlineSmall: titleStyle(24),
+        titleLarge: titleStyle(22),
+        titleMedium: titleStyle(18),
+        titleSmall: titleStyle(16),
+        bodyMedium: const TextStyle(color: ink, fontSize: 16, height: 1.55),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: navy,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -134,8 +156,27 @@ class FloodSafeApp extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(
+            fontFamily: 'Georgia',
+            fontFamilyFallback: ['Lora', 'serif'],
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
         ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: navy,
+          minimumSize: const Size(0, 54),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          side: const BorderSide(color: blue),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
       ),
     ),
     home: HomeScreen(

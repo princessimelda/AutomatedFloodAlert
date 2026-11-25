@@ -139,11 +139,11 @@ class _AlertInboxState extends State<AlertInbox> {
       ),
       const SizedBox(height: 12),
       const Text(
-        'Student prototype · TEST ALERTS ONLY. Alerts are reviewed before publication. This inbox updates while it is open.',
+        'Flood alerts and instructions for your area will appear here. This inbox refreshes while it is open.',
       ),
       const SizedBox(height: 8),
       const Text(
-        'SMS reaches enrolled test phones without internet, but requires mobile network coverage. Acknowledging an alert records that you read it; it does not confirm that an area is safe.',
+        'Read each alert and follow its instructions. You can mark an alert as read after signing in.',
         style: TextStyle(color: muted),
       ),
       const SizedBox(height: 12),
@@ -165,7 +165,7 @@ class _AlertInboxState extends State<AlertInbox> {
         Semantics(
           liveRegion: true,
           child: const Text(
-            'No current published test alerts. Continue checking official local information.',
+            'No active alerts for your area. Keep checking for updates and follow local guidance.',
           ),
         ),
       if (_actionError != null)
@@ -180,7 +180,7 @@ class _AlertInboxState extends State<AlertInbox> {
                 Semantics(
                   liveRegion: true,
                   child: Text(
-                    'TEST · ${alert.severity.toUpperCase()}',
+                    'Practice alert · ${alert.severity.toUpperCase()}',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),

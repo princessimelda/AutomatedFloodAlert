@@ -25,6 +25,7 @@ class Settings(BaseSettings):
         env_file=(
             Path(__file__).resolve().parents[1] / ".env",
             Path(__file__).resolve().parents[1] / ".env.notifications",
+            Path(__file__).resolve().parents[1] / ".env.routing",
         ),
         extra="forbid",
         hide_input_in_errors=True,
@@ -47,6 +48,7 @@ class Settings(BaseSettings):
     sms_from: SecretStr = SecretStr("")
     sms_test_recipients: dict[str, SecretStr] = {}
     notification_worker_enabled: bool = False
+    route_overpass_key: SecretStr = SecretStr("")
 
     @model_validator(mode="after")
     def distinct_operator_keys(self):

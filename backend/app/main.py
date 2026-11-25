@@ -30,9 +30,12 @@ from .repositories import (
     PostgresRepository,
     Repository,
 )
+from .routing import route_router
 
 
-def create_app(settings: Settings | None = None, repository: Repository | None = None):
+def create_app(
+    settings: Settings | None = None, repository: Repository | None = None, route_provider=None
+):
     settings = settings or Settings()
     if settings.data_mode == "fixtures" and not settings.allow_demo_data:
         raise ValueError("Fixture mode requires explicit FLOODSAFE_ALLOW_DEMO_DATA=true.")
@@ -66,6 +69,12 @@ def create_app(settings: Settings | None = None, repository: Repository | None =
     app = FastAPI(title="FloodSafe public information API", version="0.1.0", lifespan=lifespan)
     app.state.alert_store = alerts
     app.include_router(alert_router(settings, alerts))
+    app.include_router(
+        route_router(store, route_provider, settings.route_overpass_key.get_secret_value())
+    )
+    # Provider credentials may be part of upstream URL paths. Never log client request URLs.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
