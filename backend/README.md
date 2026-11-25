@@ -1,6 +1,6 @@
 # FloodSafe backend
 
-A FastAPI service backed by Supabase PostgreSQL/PostGIS. It provides public place/risk/advisory information and a separate controlled TEST-alert workflow with approval, an online inbox, recipient acknowledgement and a durable SMS outbox. See the [two-channel demo guide](../documentation/ALERT_DEMO.md) and [completion plan](../documentation/COMPLETION_PLAN.md). SMS starts disabled.
+A FastAPI service backed by Supabase PostgreSQL/PostGIS. It provides public place/risk/advisory information and a separate controlled TEST-alert workflow with approval, an online inbox and recipient acknowledgement. See the [alert demo guide](../documentation/ALERT_DEMO.md), [completion plan](../documentation/COMPLETION_PLAN.md) and [Render deployment guide](../documentation/RENDER_DEPLOYMENT.md). The optional SMS outbox remains disabled; SMS is deferred because of provider costs.
 
 ## Install
 

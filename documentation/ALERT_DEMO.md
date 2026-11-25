@@ -1,4 +1,10 @@
-# Two-channel student prototype
+# Online student prototype
+
+Scope updated 25 November 2026: email authentication and in-app notifications.
+The user confirmed that SMS is outside the release scope because of provider
+costs. Keep both SMS and the notification worker disabled. The optional SMS
+instructions below are retained for future work, not current acceptance gates.
+The inbox polls while open; no background push or offline receipt is claimed.
 
 Read [the completion plan](COMPLETION_PLAN.md) for the deadline, scope and feedback
 mapping. This guide demonstrates controlled TEST events, not official warnings.
@@ -70,7 +76,7 @@ for this deadline.
 component-event path. A rainfall_proxy rule is restricted to `information` severity;
 the existing rainfall model is not a calibrated flood probability.
 
-## Real SMS gate
+## Future extension: real SMS (outside release scope)
 
 Configure Twilio Account SID, Auth Token, an SMS-capable sender and up to five
 explicitly enrolled tester destinations in E.164 format. Confirm that the account

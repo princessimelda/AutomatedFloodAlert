@@ -1,0 +1,73 @@
+# Import this Blueprint after its deployment PR has been reviewed and merged.
+# The API is paid; confirm the displayed price before creating services.
+services:
+  - type: web
+    name: floodsafe-api
+    runtime: docker
+    plan: 0.5c-512mb
+    region: frankfurt
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /readyz
+    numInstances: 1
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: FLOODSAFE_DATA_MODE
+        value: postgres
+      - key: FLOODSAFE_ALLOW_DEMO_DATA
+        value: "true"
+      - key: FLOODSAFE_SMS_ENABLED
+        value: "false"
+      - key: FLOODSAFE_NOTIFICATION_WORKER_ENABLED
+        value: "false"
+      - key: FLOODSAFE_DB_PORT
+        value: "5432"
+      - key: FLOODSAFE_DB_NAME
+        value: postgres
+      - key: FLOODSAFE_DB_SSLMODE
+        value: require
+      - key: FLOODSAFE_DB_HOST
+        sync: false
+      - key: FLOODSAFE_DB_USER
+        sync: false
+      - key: FLOODSAFE_DB_PASSWORD
+        sync: false
+      - key: FLOODSAFE_AUTH_URL
+        sync: false
+      - key: FLOODSAFE_AUTH_PUBLISHABLE_KEY
+        sync: false
+      - key: FLOODSAFE_ALERT_PRINCIPALS
+        sync: false
+      - key: FLOODSAFE_CORS_ORIGINS
+        sync: false
+
+  - type: web
+    name: floodsafe-web
+    runtime: static
+    branch: main
+    buildCommand: python3 scripts/build_render_web.py
+    staticPublishPath: floodsafe/build/web
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: FLOODSAFE_API_URL
+        sync: false
+      - key: FLOODSAFE_SUPABASE_URL
+        sync: false
+      - key: FLOODSAFE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /flutter_bootstrap.js
+        name: Cache-Control
+        value: no-cache
