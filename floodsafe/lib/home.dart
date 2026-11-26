@@ -18,6 +18,9 @@ import 'site_widgets.dart';
 import 'emergency_help.dart';
 import 'seasonal_advisory.dart';
 import 'maps/route_repository.dart';
+import 'data/local_information_repository.dart';
+import 'place_search.dart';
+import 'rainfall_panel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -267,6 +270,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
             ),
             const SizedBox(height: 16),
+            if (_dashboard.place != null &&
+                widget.repository is WeatherRepository) ...[
+              Surface(
+                child: RainfallPanel(
+                  place: _dashboard.place!,
+                  repository: widget.repository as WeatherRepository,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             Surface(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,8 +332,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            place?.latitude != null
+            place?.accuracyMeters != null
                 ? 'Location found, accurate to about ${place!.accuracyMeters!.round()} m. Used for this check only; not saved or tracked.'
+                : place?.latitude != null
+                ? 'Approximate place location. Used for this check only; not saved or tracked.'
                 : 'Location is optional. Used once; not saved or tracked.',
             style: const TextStyle(color: muted, height: 1.5),
           ),
@@ -581,12 +596,13 @@ class _LocationPickerState extends State<LocationPicker> {
           children: [
             const Text('Choose the area you want to check.'),
             const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Search locations',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (query) => setState(() => _query = query),
+            NairobiPlaceSearch(
+              label: 'Search locations',
+              repository: widget.repository is PlaceSearchRepository
+                  ? widget.repository as PlaceSearchRepository
+                  : null,
+              onQueryChanged: (query) => setState(() => _query = query),
+              onSelected: (place) => Navigator.pop(context, place),
             ),
             const SizedBox(height: 12),
             FutureBuilder<List<Place>>(
@@ -621,7 +637,8 @@ class _LocationPickerState extends State<LocationPicker> {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (places.isEmpty)
+                    if (places.isEmpty &&
+                        widget.repository is! PlaceSearchRepository)
                       Semantics(
                         liveRegion: true,
                         child: const Text('No matching places are available.'),

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../dashboard/dashboard_data.dart';
 import 'content_repository.dart';
+import 'local_information_repository.dart';
 import '../assistant/assistant_repository.dart';
 import '../alerts/alert_repository.dart';
 import '../maps/route_repository.dart';
@@ -22,7 +23,9 @@ class ApiRepository
         ContentRepository,
         AssistantRepository,
         AlertRepository,
-        RouteRepository {
+        RouteRepository,
+        PlaceSearchRepository,
+        WeatherRepository {
   ApiRepository({
     required String baseUrl,
     http.Client? client,
@@ -49,6 +52,109 @@ class ApiRepository
   final Uri _baseUrl;
   final http.Client _client;
   final String? Function()? accessToken;
+
+  @override
+  Future<List<FoundPlace>> searchPlaces(String query) async {
+    final data = _list(
+      await _decode(
+        _client.post(
+          _url('/v1/places/search'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'query': query}),
+        ),
+      ),
+    );
+    if (data.length > 6) throw const ApiFailure('Invalid place results.');
+    final ids = <String>{};
+    return data.map((item) {
+      final value = _object(item);
+      final id = _string(value, 'id');
+      final lat = _coordinate(value, 'latitude', -1.50, -1.10);
+      final lon = _coordinate(value, 'longitude', 36.60, 37.12);
+      if (!RegExp(r'^gps:search:[NWR][1-9][0-9]*$').hasMatch(id) ||
+          !ids.add(id) ||
+          value['source'] != 'OpenStreetMap') {
+        throw const ApiFailure('Invalid place result.');
+      }
+      return FoundPlace(
+        Place(
+          id: id,
+          name: _string(value, 'name'),
+          latitude: lat,
+          longitude: lon,
+        ),
+        _string(value, 'description'),
+      );
+    }).toList();
+  }
+
+  double _coordinate(
+    Map<String, dynamic> value,
+    String key,
+    double minimum,
+    double maximum,
+  ) {
+    final coordinate = value[key];
+    if (coordinate is! num ||
+        !coordinate.isFinite ||
+        coordinate < minimum ||
+        coordinate > maximum) {
+      throw const ApiFailure(
+        'This place is outside the supported Nairobi area.',
+      );
+    }
+    return coordinate.toDouble();
+  }
+
+  @override
+  Future<RainfallEstimate> rainfall(double latitude, double longitude) async {
+    final value = _object(
+      await _decode(
+        _client.post(
+          _url('/v1/weather'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'latitude': latitude, 'longitude': longitude}),
+        ),
+      ),
+    );
+    double amount(String key) {
+      final number = value[key];
+      if (number is! num || !number.isFinite || number < 0) {
+        throw const ApiFailure('Rainfall information is incomplete.');
+      }
+      return number.toDouble();
+    }
+
+    final interval = value['interval_minutes'];
+    final estimate = RainfallEstimate(
+      rainMm: amount('rain_mm'),
+      intervalMinutes: interval is int ? interval : 0,
+      validAt: _date(value, 'valid_at'),
+      forecastRainMm: amount('forecast_rain_mm'),
+      forecastStart: _date(value, 'forecast_start'),
+      forecastEnd: _date(value, 'forecast_end'),
+      retrievedAt: _date(value, 'retrieved_at'),
+      validUntil: _date(value, 'valid_until'),
+    );
+    final now = DateTime.now().toUtc();
+    if (value['kind'] != 'weather_estimate' ||
+        value['source'] != 'Open-Meteo' ||
+        interval is! int ||
+        interval < 1 ||
+        interval > 60 ||
+        !estimate.current(now) ||
+        estimate.validAt.isBefore(now.subtract(const Duration(minutes: 90))) ||
+        estimate.validAt.isAfter(now.add(const Duration(minutes: 15))) ||
+        estimate.forecastEnd.difference(estimate.forecastStart) !=
+            const Duration(hours: 24) ||
+        estimate.validUntil.difference(estimate.retrievedAt) >
+            const Duration(minutes: 15)) {
+      throw const ApiFailure(
+        'Rainfall information is unavailable or out of date.',
+      );
+    }
+    return estimate;
+  }
 
   @override
   Future<WalkingRoute> findRoute({

@@ -20,6 +20,12 @@ is already running.
 
 ## Repository contents
 
+The application also supports [Nairobi place search and selected-area rainfall](documentation/PLACE_SEARCH_WEATHER.md).
+Search/Enter finds public neighbourhoods, roads and landmarks beyond the four
+catalogue shortcuts. Selection loads Open-Meteo rainfall estimates and a dated
+24-hour forecast window; published flood assessments remain separate. Rebuild
+both hosted services after merging this increment.
+
 | Path | Purpose |
 | --- | --- |
 | `weatherdata.ipynb` | Research and model-development notebook |

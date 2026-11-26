@@ -1,5 +1,8 @@
 # Online student prototype
 
+See the [alert demo architecture](architecture/alert-demo.md) for a labelled
+component and data-flow diagram.
+
 Scope updated 25 November 2026: email authentication and in-app notifications.
 The user confirmed that SMS is outside the release scope because of provider
 costs. Keep both SMS and the notification worker disabled. The optional SMS
