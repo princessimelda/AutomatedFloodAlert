@@ -1,9 +1,10 @@
 # Interactive map
 
 Home → Open map uses flutter_map with OpenStreetMap standard raster tiles.
-No map account or paid key is configured for the development preview. It shows
-streets, rivers and supported neighbourhood reference points. It provides no
-flood polygons, safe destinations, route calculation or inferred flood severity.
+It shows streets, rivers, neighbourhood reference points and searched places.
+Nearby walking-route suggestions use the backend road graph; see the
+[route planner](../../documentation/ROUTE_PLANNER.md) for limits and setup.
+No verified flood polygons or verified safe destinations are supplied by the map.
 Map selection returns to the existing Home assessment flow. Named neighbourhoods
 continue to use place IDs; GPS requests continue to send coordinates only in the
 backend POST body. Selecting a marker does not imply a current assessment exists.
@@ -22,11 +23,14 @@ property positions, boundaries or evacuation destinations. References:
 Saved places use the same catalogue ID lookup and bookmark markers; their owner
 RLS remains unchanged. Unknown IDs remain selectable in the list without an
 invented map position. Growing the catalogue should move source-attributed place
-coordinates to database metadata. No public geocoding endpoint is called.
+coordinates to database metadata. An explicit Search/Enter action now looks up
+other public Nairobi-area place names through a cached Photon/OpenStreetMap proxy.
+Results include mapped coordinates and can centre the map and load rainfall.
+They are temporary selections and do not become catalogue-backed saved places.
 
 Use my location requests one foreground fix. Its marker and metre-based accuracy
 circle are separate from neighbourhood pins. Coordinates, accuracy and capture
-time appear in text. Permission denial retains manual selection. A manual choice
+time distinguish a device fix from an approximate mapped place. Permission denial retains manual selection. A manual choice
 supersedes a pending GPS fix. Account changes clear selected/saved map state.
 
 ## Tiles and attribution
@@ -36,7 +40,10 @@ The native tile client identifies com.example.floodsafe; web uses browser header
 The app loads tiles on map opening, not Home startup, with panBuffer=0 and no bulk
 download, offline packs, prefetch feature or cache-busting. Keep normal browser
 Referer/cache headers. Tile requests reveal the viewed area to the tile provider;
-GPS is not sent to a separate geocoding service or saved by this map flow.
+GPS is not sent to the place-name service or saved by this map flow. The weather
+proxy rounds selected coordinates to two decimals before requesting Open-Meteo.
+Weather estimates, forecast periods and source times appear under Current
+conditions; a place's rainfall does not certify flooding or road safety.
 
 OSM standard tiles are a community, best-effort service with no availability
 promise. Review suitability and choose a provider with suitable quotas/support

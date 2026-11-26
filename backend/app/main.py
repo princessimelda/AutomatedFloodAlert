@@ -12,6 +12,7 @@ from starlette.exceptions import HTTPException
 from .alert_routes import alert_router
 from .alert_store import AlertConflict, AlertMissing, AlertStore
 from .config import Settings
+from .local_information import local_information_router
 from .models import (
     Advisory,
     ApiError,
@@ -34,7 +35,11 @@ from .routing import route_router
 
 
 def create_app(
-    settings: Settings | None = None, repository: Repository | None = None, route_provider=None
+    settings: Settings | None = None,
+    repository: Repository | None = None,
+    route_provider=None,
+    search_service=None,
+    weather_service=None,
 ):
     settings = settings or Settings()
     if settings.data_mode == "fixtures" and not settings.allow_demo_data:
@@ -69,6 +74,7 @@ def create_app(
     app = FastAPI(title="FloodSafe public information API", version="0.1.0", lifespan=lifespan)
     app.state.alert_store = alerts
     app.include_router(alert_router(settings, alerts))
+    app.include_router(local_information_router(settings, search_service, weather_service))
     app.include_router(
         route_router(store, route_provider, settings.route_overpass_key.get_secret_value())
     )

@@ -85,10 +85,19 @@ All timestamps include an explicit timezone; coordinates use WGS84 latitude/long
 | `GET /healthz` | None | Process status and data mode |
 | `GET /readyz` | None | Reader-role DB readiness, or 503 |
 | `GET /v1/places` | None | Published `{id,name,is_demo}` records |
+| `POST /v1/places/search` | `{query}` public Nairobi-area place name | Up to six deduplicated OpenStreetMap results with names, descriptions and coordinates |
+| `POST /v1/weather` | `{latitude,longitude}` in the Nairobi area | Recent rainfall estimate, 24-hour forecast window, source and validity timestamps |
 | `POST /v1/dashboard` | `{place_id}` for a named place; `{place_id: "gps:…",latitude,longitude}` for GPS | `{place_id,source,is_demo,assessment}` |
 | `GET /v1/advisories` | Optional named `place_id`, language en/sw, limit 1–100 | Current, published general and place-specific advisories |
 
 A dashboard `assessment` is null when absent; otherwise it contains `level` (low/moderate/high), `issued_at`, and `valid_until`. Expired assessments may be returned for a visible stale state; future assessments are excluded. GPS matches published non-demo polygons only, including boundary points via `ST_Covers`. Overlapping active zones prioritise higher severity. This is an integration rule, not validation that a polygon accurately represents flooding.
+
+The catalogue endpoint remains a list of neighbourhood shortcuts. Wider name search
+uses a cached Photon proxy only when the user submits Search or Enter. Selected
+search results use coordinate-based dashboard lookup and may have no published
+flood assessment. Open-Meteo rainfall is retrieved independently and never becomes
+a flood label. See [place search and weather](../documentation/PLACE_SEARCH_WEATHER.md)
+for service limits, privacy and deployment details. No new key or migration is needed.
 
 Advisories include ID, title, body, language, source, HTTPS source URL, publication/expiry timestamps and `is_demo`. Draft, expired and future advisories are excluded. Only reviewed English development content is seeded; Kiswahili content still needs review.
 

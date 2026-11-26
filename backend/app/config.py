@@ -1,8 +1,9 @@
 import re
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -49,6 +50,24 @@ class Settings(BaseSettings):
     sms_test_recipients: dict[str, SecretStr] = {}
     notification_worker_enabled: bool = False
     route_overpass_key: SecretStr = SecretStr("")
+    geocoding_url: str = "https://photon.komoot.io/api/"
+
+    @field_validator("geocoding_url")
+    @classmethod
+    def validate_geocoding_url(cls, value):
+        url = urlsplit(value)
+        if (
+            url.scheme != "https"
+            or not url.hostname
+            or url.username
+            or url.password
+            or url.query
+            or url.fragment
+        ):
+            raise ValueError(
+                "Use an HTTPS place-search service URL without credentials or query parameters."
+            )
+        return value
 
     @model_validator(mode="after")
     def distinct_operator_keys(self):

@@ -13,6 +13,9 @@ import '../ui.dart';
 import '../site_widgets.dart';
 import 'map_locations.dart';
 import 'route_repository.dart';
+import '../data/local_information_repository.dart';
+import '../place_search.dart';
+import '../rainfall_panel.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({
@@ -46,7 +49,6 @@ class _MapScreenState extends State<MapScreen> {
   Place? _selected;
   String? _owner, _error, _locationError;
   bool _loading = true, _locating = false, _tilesFailed = false, _ready = false;
-  String _query = '';
   int _loadRequest = 0, _locationRequest = 0, _tilesVersion = 0;
   WalkingRoute? _route;
   LatLng? _destination;
@@ -345,7 +347,14 @@ class _MapScreenState extends State<MapScreen> {
     });
     final position = mapPosition(place);
     if (_ready && position != null) {
-      _controller.move(position, place.id.startsWith('gps:') ? 16 : 14);
+      _controller.move(
+        position,
+        place.isDeviceLocation
+            ? 16
+            : place.latitude != null
+            ? 15
+            : 14,
+      );
     }
   }
 
@@ -398,20 +407,18 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Widget _search() => TextField(
-    key: const Key('map-search'),
-    decoration: const InputDecoration(
-      labelText: 'Search places',
-      hintText: 'For example, Westlands or Embakasi',
-      prefixIcon: Icon(Icons.search),
-    ),
-    onChanged: (value) => setState(() => _query = value.trim().toLowerCase()),
+  Widget _search() => NairobiPlaceSearch(
+    fieldKey: const Key('map-search'),
+    repository: widget.content is PlaceSearchRepository
+        ? widget.content as PlaceSearchRepository
+        : null,
+    onSelected: _select,
   );
 
   @override
   Widget build(BuildContext context) {
     final position = mapPosition(_selected);
-    final gps = _selected?.id.startsWith('gps:') == true;
+    final gps = _selected?.isDeviceLocation == true;
     final savedIds = _saved.map((s) => s.place.id).toSet();
     final markers = <String, Place>{
       for (final place in _places) place.id: place,
@@ -419,7 +426,7 @@ class _MapScreenState extends State<MapScreen> {
     };
     final selected = _selected;
     if (selected != null) markers[selected.id] = selected;
-    final places = _places.where((p) => p.name.toLowerCase().contains(_query));
+    final places = _places;
     return Scaffold(
       appBar: widget.embedded ? null : AppBar(title: const Text('Flood map')),
       body: SafeArea(
@@ -610,12 +617,16 @@ class _MapScreenState extends State<MapScreen> {
                                         width: 48,
                                         height: 48,
                                         child: IconButton(
-                                          tooltip: place.id.startsWith('gps:')
+                                          tooltip: place.isDeviceLocation
                                               ? 'Your device position'
-                                              : '${place.name}${savedIds.contains(place.id) ? ', saved place' : ', neighbourhood centre'}',
+                                              : '${place.name}${savedIds.contains(place.id)
+                                                    ? ', saved place'
+                                                    : place.latitude != null
+                                                    ? ', place location'
+                                                    : ', neighbourhood centre'}',
                                           onPressed: () => _select(place),
                                           icon: Icon(
-                                            place.id.startsWith('gps:')
+                                            place.isDeviceLocation
                                                 ? Icons.my_location
                                                 : savedIds.contains(place.id)
                                                 ? Icons.bookmark
@@ -748,9 +759,18 @@ class _MapScreenState extends State<MapScreen> {
                             Text(
                               gps
                                   ? 'Device location${_selected!.accuracyMeters == null ? '' : ' · accuracy ±${_selected!.accuracyMeters!.round()} m'}'
+                                  : _selected!.latitude != null
+                                  ? 'Approximate place location'
                                   : 'Approximate neighbourhood centre',
                             ),
                             const SizedBox(height: 18),
+                            if (widget.content is WeatherRepository) ...[
+                              RainfallPanel(
+                                place: _selected!,
+                                repository: widget.content as WeatherRepository,
+                              ),
+                              const SizedBox(height: 18),
+                            ],
                             const Text(
                               'No current flood update for this area.',
                               style: TextStyle(fontWeight: FontWeight.bold),

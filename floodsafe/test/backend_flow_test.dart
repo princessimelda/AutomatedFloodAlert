@@ -169,7 +169,8 @@ void main() {
       expect(find.textContaining('Could not load places'), findsOneWidget);
       expect(find.text('Kibera'), findsNothing);
       await tap(tester, 'Retry places');
-      expect(find.text('No matching places are available.'), findsOneWidget);
+      expect(find.text('No matching places are available.'), findsNothing);
+      expect(find.widgetWithText(FilledButton, 'Search'), findsOneWidget);
       await tap(tester, 'Cancel');
       await tester.ensureVisible(find.byKey(const Key('read-guidance')));
       await tester.pumpAndSettle();

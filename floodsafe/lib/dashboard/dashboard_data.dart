@@ -17,6 +17,8 @@ class Place {
   final DateTime? recordedAt;
   final double? accuracyMeters;
   final bool isDemo;
+  bool get isDeviceLocation =>
+      id.startsWith('gps:') && !id.startsWith('gps:search:') && id != 'gps:map';
 }
 
 const samplePlaces = [
