@@ -23,23 +23,47 @@ abstract interface class AccountRepository {
   Future<void> makeDefault(String id);
 }
 
-class SupabaseAccountRepository implements AccountRepository {
-  SupabaseAccountRepository(this.client, {this.confirmationRedirectUrl});
+abstract interface class AccountRecoveryRepository {
+  bool get passwordRecoveryRequired;
+  Future<void> resendConfirmation(String email);
+  Future<void> requestPasswordReset(String email);
+  Future<void> updatePassword(String password);
+}
+
+class SupabaseAccountRepository
+    implements AccountRepository, AccountRecoveryRepository {
+  SupabaseAccountRepository(this.client, {this.confirmationRedirectUrl}) {
+    _changes = client.auth.onAuthStateChange.map((state) {
+      if (state.event == AuthChangeEvent.passwordRecovery) {
+        _passwordRecoveryRequired = true;
+      } else if (state.event == AuthChangeEvent.signedOut ||
+          state.event == AuthChangeEvent.userUpdated) {
+        _passwordRecoveryRequired = false;
+      }
+    }).asBroadcastStream();
+  }
   final SupabaseClient client;
   final String? confirmationRedirectUrl;
+  late final Stream<void> _changes;
+  bool _passwordRecoveryRequired = false;
+  @override
+  bool get passwordRecoveryRequired => _passwordRecoveryRequired;
   @override
   String? get userId => client.auth.currentUser?.id;
   @override
-  Stream<void> get changes => client.auth.onAuthStateChange.map((_) {});
+  Stream<void> get changes => _changes;
   @override
   Future<void> signIn(String email, String password) async {
-    await client.auth.signInWithPassword(email: email, password: password);
+    await client.auth.signInWithPassword(
+      email: email.trim(),
+      password: password,
+    );
   }
 
   @override
   Future<bool> signUp(String email, String password) async {
     final response = await client.auth.signUp(
-      email: email,
+      email: email.trim(),
       password: password,
       emailRedirectTo: confirmationRedirectUrl,
     );
@@ -48,6 +72,27 @@ class SupabaseAccountRepository implements AccountRepository {
 
   @override
   Future<void> signOut() => client.auth.signOut();
+  @override
+  Future<void> resendConfirmation(String email) async {
+    await client.auth.resend(
+      type: OtpType.signup,
+      email: email.trim(),
+      emailRedirectTo: confirmationRedirectUrl,
+    );
+  }
+
+  @override
+  Future<void> requestPasswordReset(String email) => client.auth
+      .resetPasswordForEmail(email.trim(), redirectTo: confirmationRedirectUrl);
+
+  @override
+  Future<void> updatePassword(String password) async {
+    if (client.auth.currentSession == null) {
+      throw const AuthException('Sign in again.', code: 'session_not_found');
+    }
+    await client.auth.updateUser(UserAttributes(password: password));
+  }
+
   @override
   Future<List<SavedPlace>> savedPlaces() async {
     final owner = userId;

@@ -10,6 +10,7 @@ import 'data/api_repository.dart';
 import 'data/content_repository.dart';
 import 'assistant/assistant_repository.dart';
 import 'account/account_repository.dart';
+import 'account/account_recovery_gate.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -179,13 +180,16 @@ class FloodSafeApp extends StatelessWidget {
         style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
       ),
     ),
-    home: HomeScreen(
-      repository: repository,
-      locationService: locationService,
-      contentRepository: contentRepository,
-      assistantRepository: assistantRepository,
-      accountRepository: accountRepository,
-      connectedToApi: connectedToApi,
+    home: AccountRecoveryGate(
+      repository: accountRepository,
+      child: HomeScreen(
+        repository: repository,
+        locationService: locationService,
+        contentRepository: contentRepository,
+        assistantRepository: assistantRepository,
+        accountRepository: accountRepository,
+        connectedToApi: connectedToApi,
+      ),
     ),
     routes: {
       '/home': (_) => HomeScreen(
